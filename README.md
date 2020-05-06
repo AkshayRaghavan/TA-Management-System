@@ -7,4 +7,4 @@ Note : type - student/teacher/admin
 StudentPreferences (uname :varchar(100), cgpa : decimal(4,2), pref: varchar(1000));  
 Note: pref - space separated preferences listed in desc order of priority  
 
-### <FILL REST OF THE TABLES>
+### FILL REST OF THE TABLES
