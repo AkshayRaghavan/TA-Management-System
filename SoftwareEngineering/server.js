@@ -122,8 +122,20 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 		    	if (err) throw err;
 		  		console.log("1 record inserted");
 			});
-			res.writeHead(403,{'Content-Type':'text/html'});
-			res.end('<h1>Submitted Successfully</h1>');
+			fs.readFile('studentPortal/submitSuccess.html', function(err,data){
+				if(err){
+					console.log(err);
+					res.writeHead(404,{'Content-Type':'text/html'});
+				}
+				else{
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(data.toString());
+					
+					}
+				res.end();
+			});
+			//res.writeHead(403,{'Content-Type':'text/html'});
+			//res.end('<h1>Submitted Successfully</h1>');
 		}
 	});
 });
