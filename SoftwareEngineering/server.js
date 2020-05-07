@@ -24,7 +24,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('./loginPortal'));
 app.use(express.static('./studentPortal'));
-//app.use(express.static('./teacherPortal'));
+app.use(express.static('./teacherPortal'));
 
 app.get('/',function(req,res){
 	fs.readFile('loginPortal/login.html', function(err,data){
@@ -41,7 +41,7 @@ app.get('/',function(req,res){
 	});
 });
 
-app.post('/studentPortal', urlencodedParser, function(req,res){
+app.post('/portal', urlencodedParser, function(req,res){
 	//console.log(req.data);
 	con.query("SELECT * FROM "+ UserDetails + " WHERE uname = '" + req.body.uname + "'",function(err,result,fields){
 		if(err)
@@ -74,13 +74,33 @@ app.post('/studentPortal', urlencodedParser, function(req,res){
 				}
 				else if(result[0].type == 'teacher')
 				{
-					//FILL TEACHER portal
-					;
+					fs.readFile('teacherPortal/teacher_portal.html', function(err,data){
+						if(err){
+							console.log(err);
+							res.writeHead(404,{'Content-Type':'text/html'});
+						}
+						else{
+							res.writeHead(200,{'Content-Type':'text/html'});
+							res.write(data.toString());
+							
+							}
+						res.end();
+					});
 				}
-				else if(result[0].type == 'teacher')
+				else if(result[0].type == 'admin')
 				{
-					//FILL Admin portal
-					;
+					fs.readFile('adminPortal/admin_portal.html', function(err,data){
+						if(err){
+							console.log(err);
+							res.writeHead(404,{'Content-Type':'text/html'});
+						}
+						else{
+							res.writeHead(200,{'Content-Type':'text/html'});
+							res.write(data.toString());
+							
+							}
+						res.end();
+					});
 				}
 			}
 			else

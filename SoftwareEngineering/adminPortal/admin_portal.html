@@ -1,0 +1,51 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<style>
+		body{
+			overflow-x:hidden;
+		}
+	</style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+	<div class="col-sm-12 h-100 d-flex flex-column">
+		<div class="container-fluid bg-dark text-light text-center">
+			<span style="font-size: 200%; font-weight:50;"> Welcome! <!--<span id ="update_username">User-name! </span>-->  </span>
+			<a href ="http://localhost:8080/"><button class="btn btn-primary float-right">Logout</button></a>
+		</div>
+
+		<div class="row justify-content-center flex-grow-1 align-items-center">
+			<div class="container rounded bg-dark text-light">
+				<form action="http://localhost:8080/studentSubmit" method="post">
+					<div class="form-group">
+						<label for="table">Select a Table:</label>
+						<select id="table" class="form-control" required>
+							<option value="teacher">Teacher</option>
+							<option value="student">Student</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="action">Select an Action:</label>
+						<select id="action" class="form-control" required>
+							<option value="add">Add Row</option>
+							<option value="modify">Modify Row</option>
+							<option value="del">Delete Row</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="details">Record Details:</label>
+						<textarea class="form-control" rows="3" name="pref" placeholder="Enter row details, separated by space"></textarea>
+					</div>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
