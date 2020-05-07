@@ -11,16 +11,17 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
 </head>
 <body>
 	<div class="col-sm-12 h-100 d-flex flex-column">
 		<div class="container-fluid bg-dark text-light text-center">
-			<p style="font-size: 200%; font-weight:50;"> Welcome User-name!  </p>
+			<p style="font-size: 200%; font-weight:50;"> Welcome <span id ="update_username">User-name! </span>  </p>
 		</div>
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
 			<div class="container rounded bg-dark text-light">
-				<form action="/action_page.php">
+				<form action="#">
 					<div class="form-group">
 						<label for="CGPA">CGPA:</label>
 						<input type="text" class="form-control" placeholder="Enter CGPA" id="CGPA">
