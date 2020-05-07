@@ -179,19 +179,17 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 });
 
 app.post('/teacherSubmit', urlencodedParser, function(req,res){
-	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.instname + "'",function(err,result,fields){
+	con.query("SELECT * FROM " + TeacherPreferences + " WHERE cid = '" + req.body.cid + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
 		console.log(req.body.instname);
-		if(result.length == 0)
-		{
-			console.log("Instructor not registered");
+		if(result.length > 0){
+			console.log("Course registered already");
 			res.writeHead(403,{'Content-Type':'text/html'});
-			res.end('<h1>Instructor not registered</h1>');
+			res.end('<h1>Entered course has been registered already</h1>');
 		}
-		else
-		{
-			var sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + req.body.cid + "', '" + req.body.instname + "', " + req.body.nta + ", '" + req.body.pref +"')";
+		else{
+			let sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + req.body.cid + "', '" + req.body.instname + "', " + req.body.nta + ", '" + req.body.pref +"')";
 			con.query(sql, function (err, result) {
 		    	if (err) throw err;
 		  		console.log("Record inserted");
@@ -212,48 +210,44 @@ app.post('/teacherSubmit', urlencodedParser, function(req,res){
 });
 
 app.post('/adminSubmit', urlencodedParser, function(req,res){
-	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.instname + "'",function(err,result,fields){
-		if(err)
-			console.log(err);
-		console.log(req.body.instname);
-		if(result.length == 0)
-		{
-			console.log("Invalid Admin");
-			res.writeHead(403,{'Content-Type':'text/html'});
-			res.end('<h1>Invalid Admin</h1>');
-		}
+	var sql;
+	let details = req.body.details.split(",");
+	if(req.body.action=="add"){
+		if(req.body.table=="teacher")
+			sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + details[0] + "', '" + details[1] + "', " + details[2] + ", '" + details[3] +"')";
 		else
-		{
-			var sql = "";
-			var details = req.body.details.split(",");
-			if(req.body.action=="add")
-				sql = "INSERT INTO ";
-			else if(req.body.action==",modify")
-				sql = "ALTER TABLE ";
-			else
-				sql = "DELETE FROM ";
+			sql = "INSERT INTO " + StudentPreferences + " (uname, cgpa, pref) VALUES ('" + details[0] + "', " + details[1] + ", '" + details[2] +"')";
+	}
+	else{
+		if(req.body.table=="teacher")
+			sql = "DELETE FROM " + TeacherPreferences + " WHERE cid = '" + details[0] + "'";
+		else
+			sql = "DELETE FROM " + StudentPreferences + " WHERE uname = '" + details[0] + "'";
+	}
 
-			if(req.body.table=="teacher")
-				sql += TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + details[0] + "', '" + details[1] + "', " + details[2] + ", '" + details[3] +"')";
-			else
-				sql += StudentPreferences + " (uname, cgpa, pref) VALUES ('" + details[0] + "', " + details[1] + ", '" + details[2] +"')";
+	con.query(sql, function (err, result){
+    	if (err) throw err;
+  		console.log("Action '" + req.body.action + "' completed");
 
-			con.query(sql, function (err, result) {
-		    	if (err) throw err;
-		  		console.log("Action '" + req.body.action + "' completed");
-			});
-			fs.readFile('adminPortal/submitSuccess.html', function(err,data){
-				if(err){
-					console.log(err);
-					res.writeHead(404,{'Content-Type':'text/html'});
-				}
-				else{
-					res.writeHead(200,{'Content-Type':'text/html'});
-					res.write(data.toString());
-				}
-				res.end();
-			});
+  		if(req.body.action == "del" && req.body.table == "student"){
+  			let con1 = Object.assign({},con);
+  			let sql1 = "UPDATE " + UserDetails + "SET submitted = 0 WHERE uname ='" + details[0] + "'";
+  			con1.query(sql1, function(err,result){
+				if(err) throw err;
+				console.log("Student record reset");
+			};
+  		}
+	});
+	fs.readFile('adminPortal/submitSuccess.html', function(err,data){
+		if(err){
+			console.log(err);
+			res.writeHead(404,{'Content-Type':'text/html'});
 		}
+		else{
+			res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(data.toString());
+		}
+		res.end();
 	});
 });
 
