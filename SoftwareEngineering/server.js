@@ -115,7 +115,7 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 		{
 			con.query("UPDATE " + UserDetails +" SET submitted = 1 WHERE uname ='" + req.body.uname + "'",function(err,result2){
 				if(err) throw err;
-				console.log(result.affectedRows + " record(s) updated");
+				console.log(result2.affectedRows + " record(s) updated");
 			});
 			var sql = "INSERT INTO " + StudentPreferences +" (uname, cgpa, pref) VALUES ('" + req.body.uname + "', " + req.body.cgpa + ", " + "'" + req.body.pref +"')";
 			con.query(sql, function (err, result3) {
