@@ -20,6 +20,20 @@ con.connect(function(err) {
 	console.log("Connected!");
 });
 
+var sql = "create table IF NOT EXISTS UserDetails(uname varchar(100), pwd varchar(100), type varchar(100), submitted boolean, PRIMARY KEY(uname))";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("Table created/success");
+});
+
+var sql = "create table IF NOT EXISTS StudentPreferences(uname varchar(100), cgpa DECIMAL(4,2), pref varchar(1000), PRIMARY KEY(uname))";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("Table created/success");
+});
+
+//ADD OTHER TABLES HERE
+
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('./loginPortal'));
