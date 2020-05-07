@@ -7,6 +7,7 @@ var app = express()
 
 const UserDetails = 'UserDetails';
 const StudentPreferences = 'StudentPreferences';
+const TeacherPreferences = 'TeacherPreferences';
 
 var con = mysql.createConnection({
 	host:"localhost",
@@ -26,13 +27,17 @@ con.query(sql, function(err,result){
 	console.log("Table created/success");
 });
 
-var sql = "create table IF NOT EXISTS StudentPreferences(uname varchar(100), cgpa DECIMAL(4,2), pref varchar(1000), PRIMARY KEY(uname))";
+sql = "create table IF NOT EXISTS StudentPreferences(uname varchar(100), cgpa DECIMAL(4,2), pref varchar(1000), PRIMARY KEY(uname))";
 con.query(sql, function(err,result){
 	if(err) throw err;
 	console.log("Table created/success");
 });
 
-//ADD OTHER TABLES HERE
+sql = "create table IF NOT EXISTS TeacherPreferences(cid char(6), instname varchar(30), nta INTEGER, type varchar(100), PRIMARY KEY(cid))";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("Table created/success");
+});
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
@@ -151,7 +156,7 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 				if(err) throw err;
 				console.log(result2.affectedRows + " record(s) updated");
 			});
-			var sql = "INSERT INTO " + StudentPreferences +" (uname, cgpa, pref) VALUES ('" + req.body.uname + "', " + req.body.cgpa + ", " + "'" + req.body.pref +"')";
+			var sql = "INSERT INTO " + StudentPreferences +" (uname, cgpa, pref) VALUES ('" + req.body.uname + "', " + req.body.cgpa + ", '" + req.body.pref +"')";
 			con.query(sql, function (err, result3) {
 		    	if (err) throw err;
 		  		console.log("1 record inserted");
@@ -164,8 +169,7 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 				else{
 					res.writeHead(200,{'Content-Type':'text/html'});
 					res.write(data.toString());
-					
-					}
+				}
 				res.end();
 			});
 			//res.writeHead(403,{'Content-Type':'text/html'});
@@ -174,6 +178,84 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 	});
 });
 
+app.post('/teacherSubmit', urlencodedParser, function(req,res){
+	con.query("SELECT * FROM " + UserDetails + " WHERE instname = '" + req.body.instname + "'",function(err,result,fields){
+		if(err)
+			console.log(err);
+		console.log(req.body.instname);
+		if(result.length == 0)
+		{
+			console.log("Instructor not registered");
+			res.writeHead(403,{'Content-Type':'text/html'});
+			res.end('<h1>Instructor not registered</h1>');
+		}
+		else
+		{
+			var sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + req.body.cid + "', '" + req.body.instname + "', " + req.body.nta + ", '" + req.body.pref +"')";
+			con.query(sql, function (err, result) {
+		    	if (err) throw err;
+		  		console.log("Record inserted");
+			});
+			fs.readFile('teacherPortal/submitSuccess.html', function(err,data){
+				if(err){
+					console.log(err);
+					res.writeHead(404,{'Content-Type':'text/html'});
+				}
+				else{
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(data.toString());
+				}
+				res.end();
+			});
+		}
+	});
+});
+
+app.post('/adminSubmit', urlencodedParser, function(req,res){
+	con.query("SELECT * FROM " + UserDetails + " WHERE instname = '" + req.body.instname + "'",function(err,result,fields){
+		if(err)
+			console.log(err);
+		console.log(req.body.instname);
+		if(result.length == 0)
+		{
+			console.log("Invalid Admin");
+			res.writeHead(403,{'Content-Type':'text/html'});
+			res.end('<h1>Invalid Admin</h1>');
+		}
+		else
+		{
+			var sql = "";
+			var details = req.body.details.split(",");
+			if(req.body.action=="add")
+				sql = "INSERT INTO ";
+			else if(req.body.action==",modify")
+				sql = "ALTER TABLE ";
+			else
+				sql = "DELETE FROM ";
+
+			if(req.body.table=="teacher")
+				sql += TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + details[0] + "', '" + details[1] + "', " + details[2] + ", '" + details[3] +"')";
+			else
+				sql += StudentPreferences + " (uname, cgpa, pref) VALUES ('" + details[0] + "', " + details[1] + ", '" + details[2] +"')";
+
+			con.query(sql, function (err, result) {
+		    	if (err) throw err;
+		  		console.log("Action '" + req.body.action + "' completed");
+			});
+			fs.readFile('adminPortal/submitSuccess.html', function(err,data){
+				if(err){
+					console.log(err);
+					res.writeHead(404,{'Content-Type':'text/html'});
+				}
+				else{
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(data.toString());
+				}
+				res.end();
+			});
+		}
+	});
+});
 
 var server = app.listen(8080);
 
