@@ -33,7 +33,7 @@ con.query(sql, function(err,result){
 	console.log("Table created/success");
 });
 
-sql = "create table IF NOT EXISTS TeacherPreferences(cid char(6), instname varchar(30), nta INTEGER, type varchar(100), PRIMARY KEY(cid))";
+sql = "create table IF NOT EXISTS TeacherPreferences(cid char(6), instname varchar(30), nta INTEGER, pref varchar(100), PRIMARY KEY(cid))";
 con.query(sql, function(err,result){
 	if(err) throw err;
 	console.log("Table created/success");
@@ -179,7 +179,7 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 });
 
 app.post('/teacherSubmit', urlencodedParser, function(req,res){
-	con.query("SELECT * FROM " + UserDetails + " WHERE instname = '" + req.body.instname + "'",function(err,result,fields){
+	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.instname + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
 		console.log(req.body.instname);
@@ -212,7 +212,7 @@ app.post('/teacherSubmit', urlencodedParser, function(req,res){
 });
 
 app.post('/adminSubmit', urlencodedParser, function(req,res){
-	con.query("SELECT * FROM " + UserDetails + " WHERE instname = '" + req.body.instname + "'",function(err,result,fields){
+	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.instname + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
 		console.log(req.body.instname);
