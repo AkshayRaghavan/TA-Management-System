@@ -21,6 +21,24 @@ con.connect(function(err) {
 	console.log("Connected!");
 });
 
+var sql = "create table IF NOT EXISTS UserDetails(uname varchar(100), pwd varchar(100), type varchar(100), submitted boolean, PRIMARY KEY(uname))";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("Table created/success");
+});
+
+sql = "create table IF NOT EXISTS StudentPreferences(uname varchar(100), cgpa DECIMAL(4,2), pref varchar(1000), PRIMARY KEY(uname))";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("Table created/success");
+});
+
+sql = "create table IF NOT EXISTS TeacherPreferences(cid char(6), instname varchar(30), nta INTEGER, type varchar(100), PRIMARY KEY(cid))";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("Table created/success");
+});
+
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('./loginPortal'));
