@@ -1,73 +1,97 @@
+<!DOCTYPE html>
 <html>
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<style>
-		body{
-			overflow-x:hidden;
-		}
-	</style>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-</head>
-<body class="bg-light">
-	<div class="col-sm-12 h-100 d-flex flex-column">
+<title>Login Portal</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+<style>
+body,h1 {font-family: "Raleway", sans-serif}
+body, html {height: 100%}
+.bgimg {
+	background-image: url('./bgimg.jpg');
+	min-height: 100%;
+	background-position: center;
+	background-size: cover;
+}
+</style>
+<body>
+
+<div class="bgimg w3-display-container w3-animate-opacity w3-text-white">
+	<div class="w3-display-topmiddle w3-padding-large w3-xlarge">
 		<a href="https://iith.ac.in/">
-			<div class="row bg-dark">
-				<img src="center.png" class="mx-auto d-block" height="20%" width="20%" alt="IITH logo">		
+			<div class="row">
+				<img src="center.png" class="mx-auto d-block" height="30%" width="30%" alt="IITH logo">   
 			</div>
 		</a>
-		<div class="row justify-content-center flex-grow-1 align-items-center">
-			<div class="container rounded bg-dark text-light">
-				<div class="text-center">
-					<p style="font-size: 200%; font-weight: 50"> TA Management System </p>
-				</div>
-				<!-- ADD form action (back-end) -->
-				<form action="http://localhost:8080/portal" method="post" class="needs-validation" novalidate>
-				    <div class="input-group mb-3">
-				        <div class="input-group-prepend">
-					    	<span class="input-group-text">Username</span>
-					    </div>
-				        <input type="text" class="form-control" id="uname" placeholder="" name="uname" required>
-				        <div class="valid-feedback"></div>
-				        <div class="invalid-feedback">Required</div>
-				    </div>
-				    <div class="input-group mb-3">
-				        <div class="input-group-prepend">
-					    	<span class="input-group-text">Password</span>
-					    </div>
-				        <input type="password" class="form-control" id="pwd" placeholder="" name="pwd" required>
-				        <div class="valid-feedback"></div>
-				        <div class="invalid-feedback">Required</div>
-				    </div>
-				    <div class="text-center">
-				    	<button type="submit" class="btn btn-primary">Submit</button>
-					</div>
-				</form>
-			</div>
-		</div>
 	</div>
+	<div class="w3-display-middle">
+		<h1 class="w3-jumbo w3-animate-top">TA Management System</h1>
+		<hr class="w3-border-grey" style="margin:auto;width:40%">
+		<p class="w3-large w3-center w3-animate-opacity" style="margin-top:10px">
+			<button type="button" class="btn btn-warning" data-toggle="modal" data-target="#myModal">
+				<span style="font-size: 150%">Login</span>
+			</button>
+		</p>
+	</div>
+	<div class="modal fade" id="myModal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content bg-dark">
+			  <!-- Modal body -->
+				<div class="modal-body">
+					<button type="button" class="close" data-dismiss="modal"><p style="color:sandybrown">&times;</p></button>
+					<p class="modal-title text-center" style="font-size: 150%">User Login</p>
+					<form action="http://localhost:8080/portal" method="post" class="needs-validation" novalidate>
+						<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<span class="input-group-text">Username</span>
+							</div>
+							<input type="text" class="form-control" id="uname" placeholder="" name="uname" required>
+							<div class="valid-feedback"></div>
+							<div class="invalid-feedback">Required</div>
+					  	</div>
+					  	<div class="input-group mb-3">
+							<div class="input-group-prepend">
+								<span class="input-group-text">Password</span>
+							</div>
+							<input type="password" class="form-control" id="pwd" placeholder="" name="pwd" required>
+							<div class="valid-feedback"></div>
+							<div class="invalid-feedback">Required</div>
+					  	</div>
+					  	<div class="text-center">
+							<button type="submit" class="btn btn-warning">Submit</button>
+					  	</div>
+					</form>
+			  </div>
+			</div>
+	  	</div>
+	</div>
+</div>
 <script>
 // Disable form submissions if there are invalid fields
 (function() {
-  	'use strict';
-  	window.addEventListener('load', function() {
-	// Get the forms we want to add validation styles to
-	var forms = document.getElementsByClassName('needs-validation');
-	// Loop over them and prevent submission
-	var validation = Array.prototype.filter.call(forms, function(form) {
-		form.addEventListener('submit', function(event) {
-			if (form.checkValidity() === false) {
-		  		event.preventDefault();
-		  		event.stopPropagation();
-			}
-			form.classList.add('was-validated');
-	  	}, false);
-	});
-  	}, false);
+	'use strict';
+	window.addEventListener('load', function() {
+  // Get the forms we want to add validation styles to
+  var forms = document.getElementsByClassName('needs-validation');
+  // Loop over them and prevent submission
+  var validation = Array.prototype.filter.call(forms, function(form) {
+	form.addEventListener('submit', function(event) {
+	  if (form.checkValidity() === false) {
+		  event.preventDefault();
+		  event.stopPropagation();
+	  }
+	  form.classList.add('was-validated');
+	  }, false);
+  });
+	}, false);
 })();
-</script>	
+</script> 
+
 </body>
 </html>
