@@ -3,8 +3,12 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style>
-		body{
-			overflow-x:hidden;
+		body, html {height: 100%}
+		.bgimg {
+			background-image: url('../loginPortal/bgimg.jpg');
+			min-height: 100%;
+			background-position: center;
+			background-size: cover;
 		}
 	</style>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -15,15 +19,15 @@
 
 </head>
 <body>
-	<div class="col-sm-12 h-100 d-flex flex-column">
-		<div class="container-fluid bg-dark text-light text-center">
-			<span style="font-size: 200%; font-weight:50;"> Welcome! <!--<span id ="update_username">User-name! </span>-->  </span>
-			<a href ="http://localhost:8080/"><button class="btn btn-primary float-right">Logout</button></a>
+	<div class="bgimg col-sm-12 h-100 d-flex flex-column">
+		<div class="container-fluid text-light text-center" style="background: rgb(1,1,1,0)">
+			<span style="font-size: 200%; font-weight:50;"> <!--<span id ="update_username">User-name! </span>--> Student Preferences Form </span>
+			<a href ="http://localhost:8080/"><button class="btn btn-warning float-right" style="margin-top: 10px">Logout</button></a>
 		</div>
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
-			<div class="container rounded bg-dark text-light">
-				<form action="http://localhost:8080/studentSubmit" method="post">
+			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
+				<form action="http://localhost:8080/studentSubmit" method="post" style="margin-top: 10px">
 					<div class="form-group">
 						<!-- Assuming roll number matches username for students just like AIMS -->
 						<label for="uname">Roll Number:</label>
@@ -43,7 +47,7 @@
 						<div class="form-group">
 							<label for="Preferences">Enter Preferences (space separated, DESC ORDER of preference):</label>
 							<textarea id="pref" class="form-control" rows="3" name="pref" ng-model="value" readonly="readonly"></textarea>
-							<a href = "#" style="margin-top:5px " class = "btn btn-primary" ng-click="clearPref()">Clear Preferences...</a>
+							<a href = "#" style="margin-top:10px " class = "btn btn-warning" ng-click="clearPref()">Clear Preferences...</a>
 						</div>
 						<div class = "form-group">
 							<div class="input-group mb-3">
@@ -54,13 +58,13 @@
 						    </div>
 						    <ul style="list-style-type:none;">
 								<li ng-click="addPref(x)" ng-repeat="x in names | filter : test">
-									<a href="#">{{ x }}</a>
+									<a href="#" style="color:sandybrown">{{ x }}</a>
 								</li>
 							</ul>
 						</div>
 					</div>
 					<!------------------------------->
-					<button type="submit" class="btn btn-primary">Submit</button>
+					<button type="submit" class="btn btn-warning">Submit</button>
 				</form>
 			</div>
 		</div>
