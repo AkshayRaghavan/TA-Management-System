@@ -42,14 +42,15 @@
 					<div ng-app ="myApp" ng-controller="namesCtrl">
 						<div class="form-group">
 							<label for="Preferences">Enter Preferences (space separated, DESC ORDER of preference):</label>
-							<textarea class="form-control" rows="3" name="pref" ng-model="value" readonly="readonly"></textarea>
+							<textarea id="pref" class="form-control" rows="3" name="pref" ng-model="value" readonly="readonly"></textarea>
+							<a href = "#" style="margin-top:5px " class = "btn btn-primary" ng-click="clearPref()">Clear Preferences...</a>
 						</div>
 						<div class = "form-group">
 							<div class="input-group mb-3">
 						        <div class="input-group-prepend">
 							    	<span class="input-group-text">Search</span>
 							    </div>
-						        <input type="text" class="form-control" id="search" placeholder="Search your courses here" name="search" ng-model="test" >
+						        <input type="text" class="form-control" id="search" placeholder="Search your courses here" name="search" ng-model="test">
 						    </div>
 						    <ul style="list-style-type:none;">
 								<li ng-click="addPref(x)" ng-repeat="x in names | filter : test">
@@ -80,6 +81,18 @@ angular.module('myApp', []).controller('namesCtrl', function($scope) {
     	const idx = $scope.names.indexOf(x);
     	$scope.names.splice(idx,1);
     	$scope.value += x + ' ';
+    }
+    $scope.clearPref = function()
+    {
+    	$scope.value = '';
+    	$scope.names = [
+    		'EE3030',
+			'EE2020',
+			'CS4444',
+			'CS3333',
+			'PH2222',
+			'CH5555'
+    	];
     }
 });
 </script>
