@@ -235,7 +235,7 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
   			con1.query(sql1, function(err,result){
 				if(err) throw err;
 				console.log("Student record reset");
-			};
+			});
   		}
 	});
 	fs.readFile('adminPortal/submitSuccess.html', function(err,data){
