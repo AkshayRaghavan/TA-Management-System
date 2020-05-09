@@ -8,6 +8,7 @@ var app = express()
 const UserDetails = 'UserDetails';
 const StudentPreferences = 'StudentPreferences';
 const TeacherPreferences = 'TeacherPreferences';
+const FinalAllocation = 'FinalAllocation';
 
 var template = function(msg){
 	var retval = fs.readFileSync('loginPortal/template.html');
@@ -29,19 +30,31 @@ con.connect(function(err) {
 var sql = "create table IF NOT EXISTS UserDetails(uname varchar(100), pwd varchar(100), type varchar(100), submitted boolean, PRIMARY KEY(uname))";
 con.query(sql, function(err,result){
 	if(err) throw err;
-	console.log("Table created/success");
+	console.log("UserDetails Table created/success");
 });
 
 sql = "create table IF NOT EXISTS StudentPreferences(uname varchar(100), cgpa DECIMAL(4,2), pref varchar(1000), PRIMARY KEY(uname))";
 con.query(sql, function(err,result){
 	if(err) throw err;
-	console.log("Table created/success");
+	console.log("StudentPreferences Table created/success");
 });
 
 sql = "create table IF NOT EXISTS TeacherPreferences(cid char(6), instname varchar(30), nta INTEGER, pref varchar(100), PRIMARY KEY(cid))";
 con.query(sql, function(err,result){
 	if(err) throw err;
-	console.log("Table created/success");
+	console.log("TeacherPreferences Table created/success");
+});
+
+sql = "create table IF NOT EXISTS FinalAllocation(cid char(6), talist varchar(1000), PRIMARY KEY(cid))";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("FinalAllocation Table created/success");
+});
+
+sql = "create table IF NOT EXISTS Tasks(tna varchar(100), task varchar(100), PRIMARY KEY(task) )";
+con.query(sql, function(err,result){
+	if(err) throw err;
+	console.log("Tasks Table created/success");
 });
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -59,18 +72,15 @@ app.get('/',function(req,res){
 		else{
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(data.toString());
-			//console.log(data.toString());
-			}
+		}
 		res.end();
 	});
 });
 
 app.post('/portal', urlencodedParser, function(req,res){
-	//console.log(req.data);
 	con.query("SELECT * FROM "+ UserDetails + " WHERE uname = '" + req.body.uname + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
-		//console.log(result);
 		if(result.length == 0)
 		{
 			console.log("invalid user");
@@ -92,8 +102,7 @@ app.post('/portal', urlencodedParser, function(req,res){
 						else{
 							res.writeHead(200,{'Content-Type':'text/html'});
 							res.write(data.toString());
-							
-							}
+						}
 						res.end();
 					});
 				}
@@ -122,8 +131,7 @@ app.post('/portal', urlencodedParser, function(req,res){
 						else{
 							res.writeHead(200,{'Content-Type':'text/html'});
 							res.write(data.toString());
-							
-							}
+						}
 						res.end();
 					});
 				}
@@ -243,7 +251,7 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
 
 app.get('/runAlgo', urlencodedParser, function(req,res){
 	let execFile = require('child_process').execFile;
-	execFile('node', ['TA_allocation_algorithm/Multi_round_stable_matching.js'], (err, stdout, stderr) => {
+	execFile('node', ['allocationAlgorithm/allocation_algorithm.js'], (err, stdout, stderr) => {
 	    if(err){
 	        console.error('stderr', stderr);
 	        throw err;
@@ -265,7 +273,7 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 		header = "<tr><th>Roll No</th><th>CGPA</th><th>Preferences</th></tr>";
 		sql = "SELECT * FROM " + StudentPreferences;
 	}
-	else{
+	else if(req.body.dtable == "teacher"){
 		transform = {'<>':'tr','html':[
 			{'<>':'td','html':'${cid}'},
 			{'<>':'td','html':'${instname}'},
@@ -275,46 +283,44 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 		header = "<tr><th>Course Id</th><th>Instructor</th><th>No of TAs</th><th>Preferences</th></tr>";
 		sql = "SELECT * FROM " + TeacherPreferences;
 	}
+	else{
+		transform = {'<>':'tr','html':[
+			{'<>':'td','html':'${cid}'},
+			{'<>':'td','html':'${talist}'}
+		]};
+		header = "<tr><th>Course Id</th><th>Allocated TA List</th></tr>";
+		sql = "SELECT * FROM " + FinalAllocation;
+	}
 	con.query(sql, function(err,result,fields){
     	if (err) throw err;
-  		console.log("Data fetched");
-  		res.write("<table style=\"width:100%\">" + header + json2html.transform(result,transform) + "</table>");
+  		console.log("Table Data fetched");
+  		res.writeHead(200,{'Content-Type':'text/html'});
+  		res.write("tr:nth-child(even){background-color: #f2f2f2;}<table align=\"center\">" + header + json2html.transform(result,transform) + "</table>");
   		res.end();
 	});
 });
 
+app.get('/getTask', function(req, res){
+    let sql = "SELECT * FROM Tasks";
+    con.query(sql, function(err, result, fields){
+        if(err) throw err;
+        else{
+            console.log("Tasks data fetched");
+            res.writeHead(404,{'Content-Type':'text/html'});
+            res.end();
+        }
+    });
+});
+
+app.post('/taskSubmit', urlencodedParser, function(req,res){
+	let sql = "INSERT INTO " + Tasks + " (tna, task) VALUES ('" + req.body.tna+ "', '" + req.body.task +"')";
+	con.query(sql, function (err, result) {
+    	if (err) throw err;
+  		console.log("Record inserted");
+	});
+	res.writeHead(200,{'Content-Type':'text/html'});
+	res.write(template('Submitted Successfully'));
+	res.end();
+});
+
 var server = app.listen(8080);
-
-
-// var http = require('http');
-// var fs = require('fs');
-// var url = require('url');
-
-// http.createServer(function(req, res){
-// 	var path = url.parse(req.url).pathname;
-// 	console.log(path);
-// 	fs.readFile(path.substr(1), function(err,data){
-// 		if(err){
-// 			console.log(err);
-// 			res.writeHead(404,{'Content-Type':'text/html'});
-// 			res.end();
-// 		}
-// 		else{
-// 			res.writeHead(200,{'Content-Type':'text/html'});
-// 			res.write(data.toString());
-// 			console.log(data.toString());
-// 			fs.readFile('center.png', function(err,data){
-// 				if(err){
-// 					console.log(err);
-// 					res.writeHead(404,{'Content-Type':'text/html'});
-// 				}
-// 				else{
-// 					res.writeHead(200,{'Content-Type':'image/png'});
-// 					res.write(data.toString());
-// 					//console.log(data.toString());
-// 				}
-// 			});
-// 			res.end();
-// 		}
-// 	});
-// }).listen(8080);
