@@ -225,13 +225,26 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
   			let con1 = Object.assign({},con);
   			let sql1 = "UPDATE " + UserDetails + "SET submitted = 0 WHERE uname ='" + details[0] + "'";
   			con1.query(sql1, function(err,result){
-				if(err) throw err;
-				console.log("Student record reset");
-			});
+				  if(err) throw err;
+				  console.log("Student record reset");
+			  });
   		}
+      res.writeHead(200,{'Content-Type':'text/html'});
+	    res.write(template('Action Completed Successfully'));
+	    res.end();
+	});
+});
+
+app.post('/runAlgo', urlencodedParser, function(req,res){
+	let execFile = require('child_process').execFile;
+	execFile('node', ['TA_allocation_algorithm/Multi_round_stable_matching.js'], (err, stdout, stderr) => {
+	    if(err){
+	        console.error('stderr', stderr);
+	        throw err;
+	    }
 	});
 	res.writeHead(200,{'Content-Type':'text/html'});
-	res.write(template('Submitted Successfully'));
+	res.write(template('Algo scheduled to run'));
 	res.end();
 });
 
