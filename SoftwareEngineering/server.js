@@ -9,10 +9,15 @@ const UserDetails = 'UserDetails';
 const StudentPreferences = 'StudentPreferences';
 const TeacherPreferences = 'TeacherPreferences';
 
+var template = function(msg){
+	var retval = fs.readFileSync('loginPortal/template.html');
+	return retval.toString().replace('####',msg);
+}
+
 var con = mysql.createConnection({
 	host:"localhost",
 	user : "root",
-	password: "",
+	password: "akshMysql12",
 	database: 'se'
 });
 
@@ -69,8 +74,9 @@ app.post('/portal', urlencodedParser, function(req,res){
 		if(result.length == 0)
 		{
 			console.log("invalid user");
-			res.writeHead(403,{'Content-Type':'text/html'});
-			res.end('<h1>INVALID USER</h1>');
+			res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(template("Invalid User"));
+			res.end();
 		}
 		else if(result[0].pwd == req.body.pwd)
 		{
@@ -124,16 +130,18 @@ app.post('/portal', urlencodedParser, function(req,res){
 			}
 			else
 			{
-				res.writeHead(403,{'Content-Type':'text/html'});
-				res.end('<h1>ALREADY SUBMITTED</h1>');
+				res.writeHead(200,{'Content-Type':'text/html'});
+				res.write(template("Already Submitted"));
+				res.end();
 			}
 			
 		}
 		else
 		{
 			console.log("incorrect pwd");
-			res.writeHead(403,{'Content-Type':'text/html'});
-			res.end('<h1>INCORRECT PASSWORD</h1>');
+			res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(template('Incorrect Password'))
+			res.end();
 		}
 	});
 
@@ -147,8 +155,9 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 		if(result.length == 0)
 		{
 			console.log("Roll number not registered");
-			res.writeHead(403,{'Content-Type':'text/html'});
-			res.end('<h1>Roll number not registered</h1>');
+			res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(template("Roll number not registered"));
+			res.end();
 		}
 		else
 		{
@@ -185,8 +194,9 @@ app.post('/teacherSubmit', urlencodedParser, function(req,res){
 		console.log(req.body.instname);
 		if(result.length > 0){
 			console.log("Course registered already");
-			res.writeHead(403,{'Content-Type':'text/html'});
-			res.end('<h1>Entered course has been registered already</h1>');
+			res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(template('Entered course has been registered already'));
+			res.end();
 		}
 		else{
 			let sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + req.body.cid + "', '" + req.body.instname + "', " + req.body.nta + ", '" + req.body.pref +"')";
