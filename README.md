@@ -15,10 +15,10 @@ Note: pref - space separated preferences listed in desc order of priority
 create database se;  
 use se;  
 create table UserDetails(  
-uname: varchar(100), pwd : varchar(100), type: varchar(100), submitted: boolean, PRIMARY KEY(uname));  
+uname varchar(100), pwd varchar(100), type varchar(100), submitted boolean, PRIMARY KEY(uname));  
 create table StudentPreferences(  
-uname: varchar(100), cgpa : decimal(4,2), pref: varchar(1000), PRIMARY KEY(uname));  
+uname varchar(100), cgpa decimal(4,2), pref varchar(1000), PRIMARY KEY(uname));  
 create table TeacherPreferences(  
-cid: char(6), instname: varchar(100), nta : integer, pref: varchar(1000), PRIMARY KEY(cid));  
+cid char(6), instname varchar(100), nta integer, pref varchar(1000), PRIMARY KEY(cid));  
 
 ## Add the other tables too  
