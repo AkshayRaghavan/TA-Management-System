@@ -11,8 +11,8 @@ var mysql=require('mysql');
 var con=mysql.createConnection(
     {
         host:"localhost",
-        user:"test",
-        password:"123",
+        user:"root",
+        password:"akshMysql12",
         database:"se"
     }
 );
