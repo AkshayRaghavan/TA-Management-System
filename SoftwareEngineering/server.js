@@ -229,7 +229,7 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
   		console.log("Action '" + req.body.action + "' completed");
 
   		if(req.body.action == "del" && req.body.table == "student"){
-  			let sql = "UPDATE " + UserDetails + "SET submitted = 0 WHERE uname ='" + details[0] + "'";
+  			let sql = "UPDATE " + UserDetails + " SET submitted = 0 WHERE uname ='" + details[0] + "'";
   			con.query(sql, function(err,result){
 				  if(err) throw err;
 				  console.log("Student record reset");
@@ -241,7 +241,7 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
 	});
 });
 
-app.post('/runAlgo', urlencodedParser, function(req,res){
+app.get('/runAlgo', urlencodedParser, function(req,res){
 	let execFile = require('child_process').execFile;
 	execFile('node', ['TA_allocation_algorithm/Multi_round_stable_matching.js'], (err, stdout, stderr) => {
 	    if(err){
