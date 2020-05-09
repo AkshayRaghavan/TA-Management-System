@@ -2,7 +2,7 @@ var express = require('express')
 var fs = require('fs');
 var bodyParser = require('body-parser');
 var mysql = require('mysql');
-
+var json2html = require('node-json2html');
 var app = express()
 
 const UserDetails = 'UserDetails';
@@ -229,16 +229,15 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
   		console.log("Action '" + req.body.action + "' completed");
 
   		if(req.body.action == "del" && req.body.table == "student"){
-  			let con1 = Object.assign({},con);
-  			let sql1 = "UPDATE " + UserDetails + "SET submitted = 0 WHERE uname ='" + details[0] + "'";
-  			con1.query(sql1, function(err,result){
+  			let sql = "UPDATE " + UserDetails + "SET submitted = 0 WHERE uname ='" + details[0] + "'";
+  			con.query(sql, function(err,result){
 				  if(err) throw err;
 				  console.log("Student record reset");
 			  });
   		}
-      res.writeHead(200,{'Content-Type':'text/html'});
-	    res.write(template('Action Completed Successfully'));
-	    res.end();
+     	res.writeHead(200,{'Content-Type':'text/html'});
+		res.write(template('Action Completed Successfully'));
+		res.end();
 	});
 });
 
@@ -253,6 +252,34 @@ app.post('/runAlgo', urlencodedParser, function(req,res){
 	res.writeHead(200,{'Content-Type':'text/html'});
 	res.write(template('Algo scheduled to run'));
 	res.end();
+});
+
+app.post('/displayTable', urlencodedParser, function(req,res){
+	var sql,transform,header;
+	if(req.body.dtable == "student"){
+		transform = {'<>':'tr','html':[
+			{'<>':'td','html':'${uname}'},
+			{'<>':'td','html':'${cgpa}'},
+			{'<>':'td','html':'${pref}'}
+		]};
+		header = "<tr><th>Roll No</th><th>CGPA</th><th>Preferences</th></tr>";
+		sql = "SELECT * FROM " + StudentPreferences;
+	}
+	else{
+		transform = {'<>':'tr','html':[
+			{'<>':'td','html':'${cid}'},
+			{'<>':'td','html':'${instname}'},
+			{'<>':'td','html':'${nta}'},
+			{'<>':'td','html':'${pref}'}
+		]};
+		header = "<tr><th>Course Id</th><th>Instructor</th><th>No of TAs</th><th>Preferences</th></tr>";
+		sql = "SELECT * FROM " + TeacherPreferences;
+	}
+	con.query(sql, function(err,result,fields){
+    	if (err) throw err;
+  		console.log("Data fetched");
+  		res.write("<table style=\"width:100%\">" + header + json2html.transform(result,transform) + "</table>";
+	});
 });
 
 var server = app.listen(8080);
