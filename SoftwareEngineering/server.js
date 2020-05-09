@@ -16,8 +16,8 @@ var template = function(msg){
 
 var con = mysql.createConnection({
 	host:"localhost",
-	user : "root",
-	password: "akshMysql12",
+	user : "test",
+	password: "123",
 	database: 'se'
 });
 
