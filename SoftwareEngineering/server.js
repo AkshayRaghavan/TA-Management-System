@@ -295,7 +295,7 @@ app.post('/displayTable', urlencodedParser, function(req,res){
     	if (err) throw err;
   		console.log("Table Data fetched");
   		res.writeHead(200,{'Content-Type':'text/html'});
-  		res.write("tr:nth-child(even){background-color: #f2f2f2;}<table align=\"center\">" + header + json2html.transform(result,transform) + "</table>");
+  		res.write("<table align=\"center\">" + header + json2html.transform(result,transform) + "</table>");
   		res.end();
 	});
 });
