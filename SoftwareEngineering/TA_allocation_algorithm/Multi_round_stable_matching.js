@@ -11,8 +11,8 @@ var mysql=require('mysql');
 var con=mysql.createConnection(
     {
         host:"localhost",
-        user:"root",
-        password:"anand1998",
+        user:"test",
+        password:"123",
         database:"se"
     }
 );
@@ -27,7 +27,7 @@ con.query("SELECT * FROM studentdata,studentpreferences where studentdata.roll=s
     {
         var pref_string=row["pref"]
         pref_string=pref_string.replace( /[\r\n]+/gm, "" ); // removing carriage return
-        student_pref[row["roll"]]=pref_string.split(' '); // starts with the order he gives
+        student_pref[row["roll"]]=pref_string.trim().split(' '); // starts with the order he gives
         his_course_grades=JSON.parse(row["grades"]);
         for(course in his_course_grades)  // append the remainining courses he has done before after his inital preference list
         {
@@ -44,7 +44,7 @@ con.query("SELECT * FROM studentdata,studentpreferences where studentdata.roll=s
     {
       var pref_string=row["pref"]
       pref_string=pref_string.replace( /[\r\n]+/gm, "" ); // removing carriage returns that may be present
-      course_pref[row["cid"]]=pref_string.split(' '); // starts with the order he gives
+      course_pref[row["cid"]]=pref_string.trim().split(' '); // starts with the order he gives
     }
 
     //finding the list of students by course
