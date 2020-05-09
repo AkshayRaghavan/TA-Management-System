@@ -12,7 +12,7 @@ const TeacherPreferences = 'TeacherPreferences';
 var con = mysql.createConnection({
 	host:"localhost",
 	user : "root",
-	password: "akshMysql12",
+	password: "",
 	database: 'se'
 });
 
