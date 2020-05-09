@@ -279,6 +279,7 @@ app.post('/displayTable', urlencodedParser, function(req,res){
     	if (err) throw err;
   		console.log("Data fetched");
   		res.write("<table style=\"width:100%\">" + header + json2html.transform(result,transform) + "</table>");
+  		res.end();
 	});
 });
 
