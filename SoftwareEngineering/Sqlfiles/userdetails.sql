@@ -3,7 +3,7 @@ use se;
 create table userdetails(uname varchar(100),pwd varchar(100),type varchar(100),submitted boolean); 
 
 SET SQL_SAFE_UPDATES=0;
-delete from TeacherPreferences;
+delete from userdetails;
 
 INSERT INTO userdetails (`uname`,`pwd`,`type`,`submitted`) VALUES ('ee10btech11001','Ram','student',0);
 INSERT INTO userdetails (`uname`,`pwd`,`type`,`submitted`) VALUES ('ee10btech11002','Kowshik','student',0);
