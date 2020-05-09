@@ -16,8 +16,8 @@ var template = function(msg){
 
 var con = mysql.createConnection({
 	host:"localhost",
-	user : "test",
-	password: "123",
+	user : "root",
+	password: "akshMysql12",
 	database: 'se'
 });
 
@@ -152,11 +152,18 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 		if(err)
 			console.log(err);
 		console.log(req.body.uname);
+
 		if(result.length == 0)
 		{
 			console.log("Roll number not registered");
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(template("Roll number not registered"));
+			res.end();
+		}
+		else if(result[0].submitted == 1)
+		{
+			res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(template("Already Submitted"));
 			res.end();
 		}
 		else
