@@ -3,8 +3,12 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<style>
-		body{
-			overflow-x:hidden;
+		body, html {height: 100%}
+		.bgimg {
+			background-image: url('bgimg.jpg');
+			min-height: 100%;
+			background-position: center;
+			background-size: cover;
 		}
 	</style>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
@@ -13,14 +17,14 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
-	<div class="col-sm-12 h-100 d-flex flex-column">
-		<div class="container-fluid bg-dark text-light text-center">
+	<div class="bgimg col-sm-12 h-100 d-flex flex-column">
+		<div class="container-fluid text-light text-center" style="background: rgb(1,1,1,0)">
 			<span style="font-size: 200%; font-weight:50;"> Welcome! <!--<span id ="update_username">User-name! </span>-->  </span>
-			<a href ="http://localhost:8080/"><button class="btn btn-primary float-right">Logout</button></a>
+			<a href ="http://localhost:8080/"><button class="btn btn-warning float-right float-right" style="margin-top: 10px">Logout</button></a>
 		</div>
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
-			<div class="container rounded bg-dark text-light">
+			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
 				<form action="http://localhost:8080/adminSubmit" method="post">
 					<div class="form-group">
 						<label for="table">Select a Table:</label>
@@ -40,7 +44,7 @@
 						<label for="details">Record Details:</label>
 						<textarea id="details" class="form-control" rows="3" name="details" placeholder="Enter details of the new row, separated by commas"></textarea>
 					</div>
-					<button type="submit" class="btn btn-primary">Submit</button>
+					<button type="submit" class="btn btn-warning">Submit</button>
 					<script>
 						function changeDetails(val){
 							if(val == "del")
@@ -50,6 +54,10 @@
 						}
 					</script>
 				</form>
+			</div>
+
+			<div class="container rounded text-light text-center">
+				<a href="http://localhost:8080/runAlgo" class="btn btn-warning">Run TA Allocation Algorithm</a>
 			</div>
 		</div>
 	</div>
