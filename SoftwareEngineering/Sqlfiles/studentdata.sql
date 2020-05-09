@@ -3,7 +3,7 @@ use se;
 create table studentdata(roll varchar(100),name varchar(100),grades text,cgpa FLOAT); 
 
 SET SQL_SAFE_UPDATES=0;
-delete from TeacherPreferences;
+delete from studentdata;
 
 INSERT INTO studentdata (`roll`,`name`,`grades`,`cgpa`) VALUES ('ee10btech11001','Ram','{ \"EE3030\":7,\"EE2020\":8,\"CS4444\":8,\"CS3333\":10 }',9.2);
 INSERT INTO studentdata (`roll`,`name`,`grades`,`cgpa`) VALUES ('ee10btech11002','Kowshik','{ \"EE3030\":10,\"EE2020\":7,\"CS4444\":6,\"CS3333\":9 }',8.5);
