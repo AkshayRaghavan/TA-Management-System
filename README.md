@@ -25,6 +25,8 @@ create table StudentPreferences(
 uname varchar(100), cgpa decimal(4,2), pref varchar(1000), PRIMARY KEY(uname));  
 create table TeacherPreferences(  
 cid char(6), instname varchar(100), nta integer, pref varchar(1000), PRIMARY KEY(cid));  
+
 create table studentdata(roll varchar(100),name varchar(100),grades text,cgpa FLOAT); 
+
 create table final_allocation(course char(6),list_of_TAs text);
 ## Add the other tables too  
