@@ -40,11 +40,13 @@ con.query("SELECT * FROM studentdata,studentpreferences where studentdata.roll=s
 
     // getting preferences of each course(or instructor)
     var course_pref={};
+    var course_inst={};
     for(row of result2)
     {
       var pref_string=row["pref"]
       pref_string=pref_string.replace( /[\r\n]+/gm, "" ); // removing carriage returns that may be present
       course_pref[row["cid"]]=pref_string.trim().split(' '); // starts with the order he gives
+      course_inst[row["cid"]]=row["instname"];
     }
 
     //finding the list of students by course
@@ -215,7 +217,7 @@ con.query("SELECT * FROM studentdata,studentpreferences where studentdata.roll=s
               s+=student+" ";
           }
           a=s.slice(0,-1);
-          sql='INSERT INTO FinalAllocation values("'+course+'","'+s+'");';
+          sql='INSERT INTO FinalAllocation values("'+course+'","'+course_inst[course]+'","'+s+'");';
           con.query(sql,function(err,result){
             if(err) throw err;
           });
