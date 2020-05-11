@@ -76,12 +76,13 @@ app.get('/',function(req,res){
 		if(err){
 			console.log(err);
 			res.writeHead(404,{'Content-Type':'text/html'});
+			res.end();
 		}
 		else{
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(data.toString());
+			res.end();
 		}
-		res.end();
 	});
 });
 
@@ -100,25 +101,65 @@ app.post('/portal', urlencodedParser, function(req,res){
 		{
 			if(result[0].type == 'student')
 			{
-				if(!result[0].submitted)
+				if(!isAlgoRun)
 				{
-					fs.readFile('studentPortal/student_portal.html', function(err,data){
-						if(err){
-							console.log(err);
-							res.writeHead(404,{'Content-Type':'text/html'});
-						}
-						else{
-							res.writeHead(200,{'Content-Type':'text/html'});
-							res.write(data.toString());
-						}
+					if(!result[0].submitted)
+					{
+						fs.readFile('studentPortal/student_portal.html', function(err,data){
+							if(err){
+								console.log(err);
+								res.writeHead(404,{'Content-Type':'text/html'});
+								res.end();
+							}
+							else{
+								res.writeHead(200,{'Content-Type':'text/html'});
+								con.query('SELECT * FROM coursedata',function(err,result1,fields)
+								{
+									if(err)
+										console.log(err);
+									else
+									{
+										var courses = [];
+										for(var i = 0; i < result1.length; i++)
+										{
+											courses.push(result1[i].cid);
+											//console.log();
+										}
+										data = data.toString().replace('####',JSON.stringify(courses));
+										data = data.replace('####',JSON.stringify(courses));
+										res.write(data.toString());
+										res.end();
+									}
+								});
+							}
+							
+						});
+					}
+					else
+					{
+						res.writeHead(200,{'Content-Type':'text/html'});
+						res.write(template("Form Already Submitted"));
 						res.end();
-					});
+					}
 				}
 				else
 				{
-					res.writeHead(200,{'Content-Type':'text/html'});
-					res.write(template("Form Already Submitted"));
-					res.end();
+					con.query("SELECT cid FROM " + FinalAllocation + " WHERE talist LIKE '%" + req.body.uname + "%'", function(err,result,fields){
+						if(err)
+							console.log(err);
+						else if(result.length == 0)
+						{
+							res.writeHead(200,{'Content-Type':'text/html'});
+							res.write(template("You are not a TA this semester"));
+							res.end();
+						}
+						else
+						{
+							res.writeHead(200,{'Content-Type':'text/html'});
+							res.write(template("You are a TA for " + result[0].cid));
+							res.end();
+						}
+					});
 				}
 			}
 			else if(result[0].type == 'teacher')
@@ -129,12 +170,14 @@ app.post('/portal', urlencodedParser, function(req,res){
 						if(err){
 							console.log(err);
 							res.writeHead(404,{'Content-Type':'text/html'});
+							res.end();
 						}
 						else{
 							res.writeHead(200,{'Content-Type':'text/html'});
 							res.write(data.toString());
+							res.end();
 						}
-						res.end();
+						
 					});
 				}
 				else
@@ -156,11 +199,9 @@ app.post('/portal', urlencodedParser, function(req,res){
 						    				tas+='<option value=\"' + ta + '\">' + ta + '</option>';
 						    		}
 						    	}
-						    	else
-						    		throw err;
 						    	res.writeHead(200,{'Content-Type':'text/html'});
-								res.write(data.toString().replace("###",tas));
-								res.end();
+								  res.write(data.toString().replace("####",tas));
+								  res.end();
 						    });
 						}
 					});
@@ -172,12 +213,14 @@ app.post('/portal', urlencodedParser, function(req,res){
 					if(err){
 						console.log(err);
 						res.writeHead(404,{'Content-Type':'text/html'});
+						res.end();
 					}
 					else{
 						res.writeHead(200,{'Content-Type':'text/html'});
 						res.write(data.toString());
+						res.end();
 					}
-					res.end();
+					
 				});
 			}
 		}
