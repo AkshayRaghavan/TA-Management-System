@@ -485,7 +485,7 @@ app.post('/taskSubmit', urlencodedParser, function(req,res){
 });
 
 app.post('/taskUpdate', urlencodedParser, function(req,res){
-	if(req.body.task){
+	if(req.body.task != 'none'){
 		let sql = "UPDATE " + TasksData + " SET completed = 1 WHERE task = '" + req.body.task + "'";
 		con.query(sql, function(err,result){
 			if (err) throw err;
