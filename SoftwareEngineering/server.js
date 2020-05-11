@@ -461,7 +461,7 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 			{'<>':'td','html':'${task}'},
 			{'<>':'td','html':'${completed}'}
 		]};
-		header = "<tr><th>Course Id</th><th>Instructor</th><th>Allocated TA List</th></tr>";
+		header = "<tr><th>TA</th><th>Task</th><th>IsTaskCompleted</th></tr>";
 		sql = "SELECT * FROM " + TasksData;
 	}
 	con.query(sql, function(err,result,fields){
