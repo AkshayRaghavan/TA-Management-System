@@ -9,6 +9,8 @@ const UserDetails = 'UserDetails';
 const StudentPreferences = 'StudentPreferences';
 const TeacherPreferences = 'TeacherPreferences';
 const FinalAllocation = 'FinalAllocation';
+const TasksData = 'TasksData';
+let isAlgoRun = true;
 
 var template = function(msg){
 	var retval = fs.readFileSync('loginPortal/template.html');
@@ -16,10 +18,10 @@ var template = function(msg){
 }
 
 var con = mysql.createConnection({
-	host:"localhost",
+	host: "localhost",
 	user : "root",
 	password: "akshMysql12",
-	database: 'se'
+	database: "se"
 });
 
 con.connect(function(err) {
@@ -45,16 +47,23 @@ con.query(sql, function(err,result){
 	console.log("TeacherPreferences Table created/success");
 });
 
-sql = "create table IF NOT EXISTS FinalAllocation(cid char(6), talist varchar(1000), PRIMARY KEY(cid))";
+sql = "create table IF NOT EXISTS FinalAllocation(cid char(6), instname varchar(30), talist varchar(1000), PRIMARY KEY(cid))";
 con.query(sql, function(err,result){
 	if(err) throw err;
 	console.log("FinalAllocation Table created/success");
 });
 
-sql = "create table IF NOT EXISTS Tasks(tna varchar(100), task varchar(100), PRIMARY KEY(task) )";
+sql = "create table IF NOT EXISTS TasksData(tna varchar(100), task varchar(100), completed BOOLEAN, PRIMARY KEY(tna,task) )";
 con.query(sql, function(err,result){
 	if(err) throw err;
 	console.log("Tasks Table created/success");
+});
+
+con.query("SELECT 1 FROM FinalAllocation", function(err,result){
+	if(!err && result.length != 0){
+		isAlgoRun = true;
+		console.log("Algo run already");
+	}
 });
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -68,17 +77,18 @@ app.get('/',function(req,res){
 		if(err){
 			console.log(err);
 			res.writeHead(404,{'Content-Type':'text/html'});
+			res.end();
 		}
 		else{
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(data.toString());
+			res.end();
 		}
-		res.end();
 	});
 });
 
 app.post('/portal', urlencodedParser, function(req,res){
-	con.query("SELECT * FROM "+ UserDetails + " WHERE uname = '" + req.body.uname + "'",function(err,result,fields){
+	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.uname + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
 		if(result.length == 0)
@@ -90,59 +100,142 @@ app.post('/portal', urlencodedParser, function(req,res){
 		}
 		else if(result[0].pwd == req.body.pwd)
 		{
-			if(!result[0].submitted)
+			if(result[0].type == 'student')
 			{
-				if(result[0].type == 'student')
+				if(!isAlgoRun)
 				{
-					fs.readFile('studentPortal/student_portal.html', function(err,data){
-						if(err){
-							console.log(err);
-							res.writeHead(404,{'Content-Type':'text/html'});
-						}
-						else{
-							res.writeHead(200,{'Content-Type':'text/html'});
-							res.write(data.toString());
-						}
+					if(!result[0].submitted)
+					{
+						fs.readFile('studentPortal/student_portal.html', function(err,data){
+							if(err){
+								console.log(err);
+								res.writeHead(404,{'Content-Type':'text/html'});
+								res.end();
+							}
+							else{
+								res.writeHead(200,{'Content-Type':'text/html'});
+								con.query('SELECT * FROM coursedata',function(err,result1,fields)
+								{
+									if(err)
+										console.log(err);
+									else
+									{
+										var courses = [];
+										for(var i = 0; i < result1.length; i++)
+										{
+											courses.push(result1[i].cid);
+											//console.log();
+										}
+										data = data.toString().replace('####',JSON.stringify(courses));
+										data = data.replace('####',JSON.stringify(courses));
+										res.write(data.toString());
+										res.end();
+									}
+								});
+							}
+							
+						});
+					}
+					else
+					{
+						res.writeHead(200,{'Content-Type':'text/html'});
+						res.write(template("Form Already Submitted"));
 						res.end();
+					}
+				}
+				else
+				{
+					con.query("SELECT cid FROM " + FinalAllocation + " WHERE talist LIKE '%" + req.body.uname + "%'", function(err,result,fields){
+						if(err)
+							console.log(err);
+						else if(result.length == 0)
+						{
+							res.writeHead(200,{'Content-Type':'text/html'});
+							res.write(template("You are not a TA this semester"));
+							res.end();
+						}
+						else
+						{
+							fs.readFile("studentPortal/show_task.html", function(err,data){
+								res.writeHead(200,{'Content-Type':'text/html'});
+								data = data.toString().replace('$$$$', result[0].cid);
+								con.query('SELECT task FROM ' + TasksData + " WHERE tna = '" + req.body.uname + "' AND completed = 0", function(err,result,fields){
+									var task = '';
+							    	if (!err){
+							    		for(var i = 0; i < result.length; i++){
+							    			task += '<option value=\"' + result[i].task + '\" id=\"' + result[i].task + '\">' + result[i].task + '</option>';
+							    		}
+							    	}
+							    	data = data.replace('####', task);
+							    	res.write(data);
+									res.end();
+								});
+							});
+							
+						}
 					});
 				}
-				else if(result[0].type == 'teacher')
+			}
+			else if(result[0].type == 'teacher')
+			{
+				if(!isAlgoRun)
 				{
 					fs.readFile('teacherPortal/teacher_portal.html', function(err,data){
 						if(err){
 							console.log(err);
 							res.writeHead(404,{'Content-Type':'text/html'});
+							res.end();
 						}
 						else{
 							res.writeHead(200,{'Content-Type':'text/html'});
 							res.write(data.toString());
-							
-							}
-						res.end();
+							res.end();
+						}
 					});
 				}
-				else if(result[0].type == 'admin')
+				else
 				{
-					fs.readFile('adminPortal/admin_portal.html', function(err,data){
+					fs.readFile('teacherPortal/assign_task.html', function(err,data){
 						if(err){
 							console.log(err);
 							res.writeHead(404,{'Content-Type':'text/html'});
+							res.end();
 						}
 						else{
-							res.writeHead(200,{'Content-Type':'text/html'});
-							res.write(data.toString());
+							let tas = "";
+							let sql = "SELECT talist FROM " + FinalAllocation + " WHERE instname = '" + req.body.uname + "'";
+							con.query(sql, function(err,result,fields){
+						    	if (!err){
+						    		for(row of result){
+						    			let tas1 = row['talist'].trim().split(" ");
+						    			for(ta of tas1)
+						    				tas+='<option value=\"' + ta + '\">' + ta + '</option>';
+						    		}
+						    	}
+						    	res.writeHead(200,{'Content-Type':'text/html'});
+								res.write(data.toString().replace("####",tas));
+								res.end();
+						    });
 						}
-						res.end();
 					});
 				}
 			}
-			else
+			else if(result[0].type == 'admin')
 			{
-				res.writeHead(200,{'Content-Type':'text/html'});
-				res.write(template("Already Submitted"));
-				res.end();
+				fs.readFile('adminPortal/admin_portal.html', function(err,data){
+					if(err){
+						console.log(err);
+						res.writeHead(404,{'Content-Type':'text/html'});
+						res.end();
+					}
+					else{
+						res.writeHead(200,{'Content-Type':'text/html'});
+						res.write(data.toString());
+						res.end();
+					}
+					
+				});
 			}
-			
 		}
 		else
 		{
@@ -159,31 +252,26 @@ app.post('/studentSubmit', urlencodedParser, function(req,res){
 	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.uname + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
-		console.log(req.body.uname);
-
-		if(result.length == 0)
-		{
+		else if(result.length == 0){
 			console.log("Roll number not registered");
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(template("Roll number not registered"));
 			res.end();
 		}
-		else if(result[0].submitted == 1)
-		{
+		else if(result[0].submitted == 1){
 			res.writeHead(200,{'Content-Type':'text/html'});
-			res.write(template("Already Submitted"));
+			res.write(template("Preferences already Submitted"));
 			res.end();
 		}
-		else
-		{
-			con.query("UPDATE " + UserDetails +" SET submitted = 1 WHERE uname ='" + req.body.uname + "'",function(err,result2){
+		else{
+			con.query("UPDATE " + UserDetails + " SET submitted = 1 WHERE uname ='" + req.body.uname + "'",function(err,result2){
 				if(err) throw err;
 				console.log(result2.affectedRows + " record(s) updated");
 			});
-			var sql = "INSERT INTO " + StudentPreferences +" (uname, cgpa, pref) VALUES ('" + req.body.uname + "', " + req.body.cgpa + ", '" + req.body.pref +"')";
+			let sql = "INSERT INTO " + StudentPreferences + " (uname, cgpa, pref) VALUES ('" + req.body.uname + "', " + req.body.cgpa + ", '" + req.body.pref +"')";
 			con.query(sql, function (err, result3) {
 		    	if (err) throw err;
-		  		console.log("1 record inserted");
+		  		console.log("Record inserted");
 			});
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(template('Submitted Successfully'));
@@ -196,8 +284,7 @@ app.post('/teacherSubmit', urlencodedParser, function(req,res){
 	con.query("SELECT * FROM " + TeacherPreferences + " WHERE cid = '" + req.body.cid + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
-		console.log(req.body.instname);
-		if(result.length > 0){
+		else if(result.length > 0){
 			console.log("Course registered already");
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(template('Entered course has been registered already'));
@@ -217,36 +304,111 @@ app.post('/teacherSubmit', urlencodedParser, function(req,res){
 });
 
 app.post('/adminSubmit', urlencodedParser, function(req,res){
-	var sql;
 	let details = req.body.details.split(",");
-	if(req.body.action=="add"){
-		if(req.body.table=="teacher")
-			sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + details[0] + "', '" + details[1] + "', " + details[2] + ", '" + details[3] +"')";
-		else
-			sql = "INSERT INTO " + StudentPreferences + " (uname, cgpa, pref) VALUES ('" + details[0] + "', " + details[1] + ", '" + details[2] +"')";
+	if(req.body.action == "add"){
+		if(req.body.table == "teacher"){
+			con.query("SELECT * FROM " + TeacherPreferences + " WHERE cid = '" + details[0] + "'",function(err,result,fields){
+				if(err)
+					console.log(err);
+				else if(result.length > 0){
+					console.log("Course registered already");
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Entered course has been registered already'));
+					res.end();
+				}
+				else{
+					let sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + details[0] + "', '" + details[1] + "', " + details[2] + ", '" + details[3] +"')";
+					con.query(sql, function (err, result) {
+				    	if (err) throw err;
+				  		console.log("Record inserted");
+					});
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Submitted Successfully'));
+					res.end();
+				}
+			});
+		}
+		else{
+			con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + details[0] + "'",function(err,result,fields){
+				if(err)
+					console.log(err);
+				else if(result.length == 0){
+					console.log("Roll number not registered");
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template("Roll number not registered"));
+					res.end();
+				}
+				else if(result[0].submitted == 1){
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template("Preferences already Submitted"));
+					res.end();
+				}
+				else{
+					con.query("UPDATE " + UserDetails + " SET submitted = 1 WHERE uname ='" + details[0] + "'",function(err,result2){
+						if(err) throw err;
+						console.log(result2.affectedRows + " record(s) updated");
+					});
+					let sql = "INSERT INTO " + StudentPreferences + " (uname, cgpa, pref) VALUES ('" + details[0] + "', " + details[1] + ", '" + details[2] +"')";
+					con.query(sql, function (err, result3) {
+				    	if (err) throw err;
+				  		console.log("Record inserted");
+					});
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Submitted Successfully'));
+					res.end();
+				}
+			});
+		}
 	}
 	else{
-		if(req.body.table=="teacher")
-			sql = "DELETE FROM " + TeacherPreferences + " WHERE cid = '" + details[0] + "'";
-		else
-			sql = "DELETE FROM " + StudentPreferences + " WHERE uname = '" + details[0] + "'";
+		if(req.body.table == "teacher"){
+			con.query("SELECT * FROM " + TeacherPreferences + " WHERE cid = '" + details[0] + "'",function(err,result,fields){
+				if(err) console.log(err);
+				else if(result.length == 0){
+					console.log("Course Preferences not Found");
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Course Preferences not Found'));
+					res.end();
+				}
+				else{
+					let sql = "DELETE FROM " + TeacherPreferences + " WHERE cid = '" + details[0] + "'";
+					con.query(sql, function (err, result){
+				    	if (err) throw err;
+				  		console.log("Course Preferences Deleted");
+					});
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Course Preferences Deleted'));
+					res.end();
+				}
+			});
+		}
+		else{
+			con.query("SELECT * FROM " + StudentPreferences + " WHERE uname = '" + details[0] + "'",function(err,result,fields){
+				if(err) console.log(err);
+				else if(result.length == 0){
+					console.log("Student Preferences not Found");
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Student Preferences not Found'));
+					res.end();
+				}
+				else{
+					let sql = "DELETE FROM " + StudentPreferences + " WHERE uname = '" + details[0] + "'";
+					con.query(sql, function (err, result){
+				    	if (err) throw err;
+				  		console.log("Student Preferences Deleted");
+					});
+					sql = "UPDATE " + UserDetails + " SET submitted = 0 WHERE uname ='" + details[0] + "'";
+		  			con.query(sql, function(err,result){
+						if(err) throw err;
+						console.log("Student access reset");
+					});
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Student Preferences Deleted'));
+					res.end();
+				}
+			});
+		}
 	}
-
-	con.query(sql, function (err, result){
-    	if (err) throw err;
-  		console.log("Action '" + req.body.action + "' completed");
-
-  		if(req.body.action == "del" && req.body.table == "student"){
-  			let sql = "UPDATE " + UserDetails + " SET submitted = 0 WHERE uname ='" + details[0] + "'";
-  			con.query(sql, function(err,result){
-				  if(err) throw err;
-				  console.log("Student record reset");
-			  });
-  		}
-     	res.writeHead(200,{'Content-Type':'text/html'});
-		res.write(template('Action Completed Successfully'));
-		res.end();
-	});
 });
 
 app.get('/runAlgo', urlencodedParser, function(req,res){
@@ -257,8 +419,9 @@ app.get('/runAlgo', urlencodedParser, function(req,res){
 	        throw err;
 	    }
 	});
+	isAlgoRun = true;
 	res.writeHead(200,{'Content-Type':'text/html'});
-	res.write(template('Algo scheduled to run'));
+	res.write(template('Allocation Algorithm has been scheduled to run'));
 	res.end();
 });
 
@@ -283,37 +446,35 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 		header = "<tr><th>Course Id</th><th>Instructor</th><th>No of TAs</th><th>Preferences</th></tr>";
 		sql = "SELECT * FROM " + TeacherPreferences;
 	}
-	else{
+	else if(req.body.dtable == "final"){
 		transform = {'<>':'tr','html':[
 			{'<>':'td','html':'${cid}'},
+			{'<>':'td','html':'${instname}'},
 			{'<>':'td','html':'${talist}'}
 		]};
-		header = "<tr><th>Course Id</th><th>Allocated TA List</th></tr>";
+		header = "<tr><th>Course Id</th><th>Instructor</th><th>Allocated TA List</th></tr>";
 		sql = "SELECT * FROM " + FinalAllocation;
+	}
+	else{
+		transform = {'<>':'tr','html':[
+			{'<>':'td','html':'${tna}'},
+			{'<>':'td','html':'${task}'},
+			{'<>':'td','html':'${completed}'}
+		]};
+		header = "<tr><th>Course Id</th><th>Instructor</th><th>Allocated TA List</th></tr>";
+		sql = "SELECT * FROM " + TasksData;
 	}
 	con.query(sql, function(err,result,fields){
     	if (err) throw err;
   		console.log("Table Data fetched");
   		res.writeHead(200,{'Content-Type':'text/html'});
-  		res.write("<table align=\"center\">" + header + json2html.transform(result,transform) + "</table>");
+  		res.write("<style>tr:nth-child(even){background-color: #f2f2f2;}</style><table width=\"100%\">" + header + json2html.transform(result,transform) + "</table>");
   		res.end();
 	});
 });
 
-app.get('/getTask', function(req, res){
-    let sql = "SELECT * FROM Tasks";
-    con.query(sql, function(err, result, fields){
-        if(err) throw err;
-        else{
-            console.log("Tasks data fetched");
-            res.writeHead(404,{'Content-Type':'text/html'});
-            res.end();
-        }
-    });
-});
-
 app.post('/taskSubmit', urlencodedParser, function(req,res){
-	let sql = "INSERT INTO " + Tasks + " (tna, task) VALUES ('" + req.body.tna+ "', '" + req.body.task +"')";
+	let sql = "INSERT INTO " + TasksData + " (tna, task, completed) VALUES ('" + req.body.tna+ "', '" + req.body.task +"',0)";
 	con.query(sql, function (err, result) {
     	if (err) throw err;
   		console.log("Record inserted");
@@ -321,6 +482,19 @@ app.post('/taskSubmit', urlencodedParser, function(req,res){
 	res.writeHead(200,{'Content-Type':'text/html'});
 	res.write(template('Submitted Successfully'));
 	res.end();
+});
+
+app.post('/taskUpdate', urlencodedParser, function(req,res){
+	if(req.body.task){
+		let sql = "UPDATE " + TasksData + " SET completed = 1 WHERE task = '" + req.body.task + "'";
+		con.query(sql, function(err,result){
+			if (err) throw err;
+	  		console.log("Task Record updated");
+	  		res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(template('Task Updated Successfully'));
+			res.end();
+		});
+	}
 });
 
 var server = app.listen(8080);

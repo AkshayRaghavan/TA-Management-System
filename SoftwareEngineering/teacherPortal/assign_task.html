@@ -25,22 +25,16 @@
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
 			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
-				<form action="http://localhost:8080/teacherSubmit" method="post" target="_blank">
+				<form action="http://localhost:8080/taskSubmit" method="post" target="_blank">
 					<div class="form-group">
-						<label for="cid">Course Id:</label>
-						<input type="text" class="form-control" placeholder="Enter Course Id" name="cid" required>
+						<label for="tna">Choose TA:</label>
+						<select class="form-control" name="tna" required>
+							####
+						</select>
 					</div>
 					<div class="form-group">
-						<label for="instname">Course Instructor:</label>
-						<input type="text" class="form-control" placeholder="Enter Instructor Name" name="instname" required>
-					</div>
-					<div class="form-group">
-						<label for="nta">No of TAs required:</label>
-						<input type="number" class="form-control" placeholder="Enter no of TAs" name="nta" required>
-					</div>
-					<div class="form-group">
-						<label for="Preferences">Enter Preferences for TAs (optional):</label>
-						<textarea class="form-control" rows="3" name="pref" placeholder="Enter space separated Student Roll Nos, with decreasing priority"></textarea>
+						<label for="task">Task to be Assigned:</label>
+						<input type="text" class="form-control" placeholder="Enter Task" name="task">
 					</div>
 					<button type="submit" class="btn btn-warning">Submit</button>
 					<button type="reset" class="btn btn-warning" style="float:right;">Reset</button>

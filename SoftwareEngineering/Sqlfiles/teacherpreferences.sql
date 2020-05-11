@@ -1,6 +1,5 @@
 use se;
--- Create the table if not created:-
--- create table TeacherPreferences(cid char(6), instname varchar(100), nta integer, pref varchar(1000),PRIMARY KEY(cid));  
+create table IF NOT EXISTS TeacherPreferences(cid char(6), instname varchar(100), nta integer, pref varchar(1000),PRIMARY KEY(cid));  
 
 SET SQL_SAFE_UPDATES=0;
 delete from TeacherPreferences;
