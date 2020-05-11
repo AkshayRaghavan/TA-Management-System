@@ -58,6 +58,13 @@ con.query(sql, function(err,result){
 	console.log("Tasks Table created/success");
 });
 
+con.query("SELECT 1 FROM FinalAllocation", function(err,result){
+	if(!err && result.length != 0){
+		isAlgoRun = true;
+		console.log("Algo run already");
+	}
+});
+
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('./loginPortal'));
@@ -136,23 +143,26 @@ app.post('/portal', urlencodedParser, function(req,res){
 						if(err){
 							console.log(err);
 							res.writeHead(404,{'Content-Type':'text/html'});
+							res.end();
 						}
 						else{
 							let tas = "";
-							let sql = "SELECT talist FROM " + FinalAllocation + "WHERE instname = " + req.body.uname;
+							let sql = "SELECT talist FROM " + FinalAllocation + " WHERE instname = '" + req.body.uname + "'";
 							con.query(sql, function(err,result,fields){
 						    	if (!err){
-						    		for(talist in result){
-						    			let tas1 = talist.split(" ");
-						    			for(ta in tas1)
+						    		for(row of result){
+						    			let tas1 = row['talist'].trim().split(" ");
+						    			for(ta of tas1)
 						    				tas+='<option value=\"' + ta + '\">' + ta + '</option>';
 						    		}
 						    	}
+						    	else
+						    		throw err;
 						    	res.writeHead(200,{'Content-Type':'text/html'});
 								res.write(data.toString().replace("###",tas));
+								res.end();
 						    });
 						}
-						res.end();
 					});
 				}
 			}
@@ -383,16 +393,17 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 	else{
 		transform = {'<>':'tr','html':[
 			{'<>':'td','html':'${cid}'},
+			{'<>':'td','html':'${instname}'},
 			{'<>':'td','html':'${talist}'}
 		]};
-		header = "<tr><th>Course Id</th><th>Allocated TA List</th></tr>";
+		header = "<tr><th>Course Id</th><th>Instructor</th><th>Allocated TA List</th></tr>";
 		sql = "SELECT * FROM " + FinalAllocation;
 	}
 	con.query(sql, function(err,result,fields){
     	if (err) throw err;
   		console.log("Table Data fetched");
   		res.writeHead(200,{'Content-Type':'text/html'});
-  		res.write("<table align=\"center\">" + header + json2html.transform(result,transform) + "</table>");
+  		res.write("<style>tr:nth-child(even){background-color: #f2f2f2;}</style><table width=\"100%\">" + header + json2html.transform(result,transform) + "</table>");
   		res.end();
 	});
 });

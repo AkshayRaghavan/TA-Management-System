@@ -25,7 +25,7 @@
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
 			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
-				<form action="http://localhost:8080/teacherSubmit" method="post">
+				<form action="http://localhost:8080/teacherSubmit" method="post" target="_blank">
 					<div class="form-group">
 						<label for="cid">Course Id:</label>
 						<input type="text" class="form-control" placeholder="Enter Course Id" name="cid" required>
@@ -43,10 +43,10 @@
 						<textarea class="form-control" rows="3" name="pref" placeholder="Enter space separated Student Roll Nos, with decreasing priority"></textarea>
 					</div>
 					<button type="submit" class="btn btn-warning">Submit</button>
+					<button type="reset" class="btn btn-warning" style="float:right;">Reset</button>
 				</form>
 			</div>
 		</div>
 	</div>
-
 </body>
 </html>
