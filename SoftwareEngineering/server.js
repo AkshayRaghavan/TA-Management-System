@@ -9,7 +9,7 @@ const UserDetails = 'UserDetails';
 const StudentPreferences = 'StudentPreferences';
 const TeacherPreferences = 'TeacherPreferences';
 const FinalAllocation = 'FinalAllocation';
-let isAlgoRun = true;
+let isAlgoRun = false;
 
 var template = function(msg){
 	var retval = fs.readFileSync('loginPortal/template.html');
@@ -58,6 +58,7 @@ con.query(sql, function(err,result){
 	console.log("Tasks Table created/success");
 });
 
+
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('./loginPortal'));
@@ -69,12 +70,13 @@ app.get('/',function(req,res){
 		if(err){
 			console.log(err);
 			res.writeHead(404,{'Content-Type':'text/html'});
+			res.end();
 		}
 		else{
 			res.writeHead(200,{'Content-Type':'text/html'});
 			res.write(data.toString());
+			res.end();
 		}
-		res.end();
 	});
 });
 
@@ -101,12 +103,30 @@ app.post('/portal', urlencodedParser, function(req,res){
 							if(err){
 								console.log(err);
 								res.writeHead(404,{'Content-Type':'text/html'});
+								res.end();
 							}
 							else{
 								res.writeHead(200,{'Content-Type':'text/html'});
-								res.write(data.toString());
+								con.query('SELECT * FROM coursedata',function(err,result1,fields)
+								{
+									if(err)
+										console.log(err);
+									else
+									{
+										var courses = [];
+										for(var i = 0; i < result1.length; i++)
+										{
+											courses.push(result1[i].cid);
+											//console.log();
+										}
+										data = data.toString().replace('####',JSON.stringify(courses));
+										data = data.replace('####',JSON.stringify(courses));
+										res.write(data.toString());
+										res.end();
+									}
+								});
 							}
-							res.end();
+							
 						});
 					}
 					else
@@ -144,12 +164,14 @@ app.post('/portal', urlencodedParser, function(req,res){
 						if(err){
 							console.log(err);
 							res.writeHead(404,{'Content-Type':'text/html'});
+							res.end();
 						}
 						else{
 							res.writeHead(200,{'Content-Type':'text/html'});
 							res.write(data.toString());
+							res.end();
 						}
-						res.end();
+						
 					});
 				}
 				else
@@ -187,12 +209,14 @@ app.post('/portal', urlencodedParser, function(req,res){
 					if(err){
 						console.log(err);
 						res.writeHead(404,{'Content-Type':'text/html'});
+						res.end();
 					}
 					else{
 						res.writeHead(200,{'Content-Type':'text/html'});
 						res.write(data.toString());
+						res.end();
 					}
-					res.end();
+					
 				});
 			}
 		}
