@@ -17,9 +17,9 @@ var con=mysql.createConnection(
     }
 );
 
-con.query("SELECT * FROM studentdata,studentpreferences where studentdata.roll=studentpreferences.uname;", function (err1, result1, fields1) {
+con.query("SELECT * FROM StudentData,StudentPreferences where StudentData.roll=StudentPreferences.uname;", function (err1, result1, fields1) {
   if (err1) throw err1;
-  con.query("SELECT * FROM teacherpreferences;",function(err2,result2,fields2){
+  con.query("SELECT * FROM TeacherPreferences;",function(err2,result2,fields2){
     if(err2) throw err2;
     // finding student preference order
     var student_pref={};
@@ -46,6 +46,8 @@ con.query("SELECT * FROM studentdata,studentpreferences where studentdata.roll=s
       var pref_string=row["pref"]
       pref_string=pref_string.replace( /[\r\n]+/gm, "" ); // removing carriage returns that may be present
       course_pref[row["cid"]]=pref_string.trim().split(' '); // starts with the order he gives
+      if(pref_string.trim()=='')
+        course_pref[row["cid"]]=[];
       course_inst[row["cid"]]=row["instname"];
     }
 
@@ -79,9 +81,11 @@ con.query("SELECT * FROM studentdata,studentpreferences where studentdata.roll=s
     for(course in applications){
       const sorted_pref_order=applications[course];
       const actual_pref_order=[];
-      for(student of course_pref[course]){
-        actual_pref_order.push(student); // first, we push the order given by instructor
-        sorted_pref_order.splice(sorted_pref_order.indexOf(student),1); // removing the student from the sorted order, so that we don't insert him again
+      if(course_pref[course]!=undefined){
+        for(student of course_pref[course]){
+          actual_pref_order.push(student); // first, we push the order given by instructor
+          sorted_pref_order.splice(sorted_pref_order.indexOf(student),1); // removing the student from the sorted order, so that we don't insert him again
+        }
       }
       // then, we append the remaining students in the order of decreasing grade in that course (we already sorted)
       applications[course]=actual_pref_order.concat(sorted_pref_order);

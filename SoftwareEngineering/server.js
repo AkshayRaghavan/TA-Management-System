@@ -17,10 +17,10 @@ var template = function(msg){
 }
 
 var con = mysql.createConnection({
-	host:"localhost",
+	host: "localhost",
 	user : "root",
 	password: "akshMysql12",
-	database: 'se'
+	database: "se"
 });
 
 con.connect(function(err) {
@@ -182,8 +182,8 @@ app.post('/portal', urlencodedParser, function(req,res){
 
 });
 
-function addRecordToStudentPreferences(uname,cgpa,pref){
-	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + uname + "'",function(err,result,fields){
+app.post('/studentSubmit', urlencodedParser, function(req,res){
+	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.uname + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
 		else if(result.length == 0){
@@ -198,11 +198,11 @@ function addRecordToStudentPreferences(uname,cgpa,pref){
 			res.end();
 		}
 		else{
-			con.query("UPDATE " + UserDetails + " SET submitted = 1 WHERE uname ='" + uname + "'",function(err,result2){
+			con.query("UPDATE " + UserDetails + " SET submitted = 1 WHERE uname ='" + req.body.uname + "'",function(err,result2){
 				if(err) throw err;
 				console.log(result2.affectedRows + " record(s) updated");
 			});
-			let sql = "INSERT INTO " + StudentPreferences +" (uname, cgpa, pref) VALUES ('" + uname + "', " + cgpa + ", '" + pref +"')";
+			let sql = "INSERT INTO " + StudentPreferences + " (uname, cgpa, pref) VALUES ('" + req.body.uname + "', " + req.body.cgpa + ", '" + req.body.pref +"')";
 			con.query(sql, function (err, result3) {
 		    	if (err) throw err;
 		  		console.log("Record inserted");
@@ -212,10 +212,10 @@ function addRecordToStudentPreferences(uname,cgpa,pref){
 			res.end();
 		}
 	});
-}
+});
 
-function addRecordToTeacherPreferences(cid,instname,nta,pref){
-	con.query("SELECT * FROM " + TeacherPreferences + " WHERE cid = '" + cid + "'",function(err,result,fields){
+app.post('/teacherSubmit', urlencodedParser, function(req,res){
+	con.query("SELECT * FROM " + TeacherPreferences + " WHERE cid = '" + req.body.cid + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
 		else if(result.length > 0){
@@ -225,7 +225,7 @@ function addRecordToTeacherPreferences(cid,instname,nta,pref){
 			res.end();
 		}
 		else{
-			let sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + cid + "', '" + instname + "', " + nta + ", '" + pref +"')";
+			let sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + req.body.cid + "', '" + req.body.instname + "', " + req.body.nta + ", '" + req.body.pref +"')";
 			con.query(sql, function (err, result) {
 		    	if (err) throw err;
 		  		console.log("Record inserted");
@@ -235,23 +235,64 @@ function addRecordToTeacherPreferences(cid,instname,nta,pref){
 			res.end();
 		}
 	});
-}
-
-app.post('/studentSubmit', urlencodedParser, function(req,res){
-	addRecordToStudentPreferences(req.body.uname, req.body.cgpa, req.body.pref);
-});
-
-app.post('/teacherSubmit', urlencodedParser, function(req,res){
-	addRecordToTeacherPreferences(req.body.cid, req.body.instname, req.body.nta, req.body.pref);
 });
 
 app.post('/adminSubmit', urlencodedParser, function(req,res){
 	let details = req.body.details.split(",");
 	if(req.body.action == "add"){
-		if(req.body.table=="teacher")
-			addRecordToTeacherPreferences(details[0], details[1], details[2], details[3]);
-		else
-			addRecordToStudentPreferences(details[0], details[1], details[2]);
+		if(req.body.table == "teacher"){
+			con.query("SELECT * FROM " + TeacherPreferences + " WHERE cid = '" + details[0] + "'",function(err,result,fields){
+				if(err)
+					console.log(err);
+				else if(result.length > 0){
+					console.log("Course registered already");
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Entered course has been registered already'));
+					res.end();
+				}
+				else{
+					let sql = "INSERT INTO " + TeacherPreferences + " (cid, instname, nta, pref) VALUES ('" + details[0] + "', '" + details[1] + "', " + details[2] + ", '" + details[3] +"')";
+					con.query(sql, function (err, result) {
+				    	if (err) throw err;
+				  		console.log("Record inserted");
+					});
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Submitted Successfully'));
+					res.end();
+				}
+			});
+		}
+		else{
+			con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + details[0] + "'",function(err,result,fields){
+				if(err)
+					console.log(err);
+				else if(result.length == 0){
+					console.log("Roll number not registered");
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template("Roll number not registered"));
+					res.end();
+				}
+				else if(result[0].submitted == 1){
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template("Preferences already Submitted"));
+					res.end();
+				}
+				else{
+					con.query("UPDATE " + UserDetails + " SET submitted = 1 WHERE uname ='" + details[0] + "'",function(err,result2){
+						if(err) throw err;
+						console.log(result2.affectedRows + " record(s) updated");
+					});
+					let sql = "INSERT INTO " + StudentPreferences + " (uname, cgpa, pref) VALUES ('" + details[0] + "', " + details[1] + ", '" + details[2] +"')";
+					con.query(sql, function (err, result3) {
+				    	if (err) throw err;
+				  		console.log("Record inserted");
+					});
+					res.writeHead(200,{'Content-Type':'text/html'});
+					res.write(template('Submitted Successfully'));
+					res.end();
+				}
+			});
+		}
 	}
 	else{
 		if(req.body.table == "teacher"){
