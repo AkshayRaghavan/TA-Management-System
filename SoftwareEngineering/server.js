@@ -9,7 +9,7 @@ const UserDetails = 'UserDetails';
 const StudentPreferences = 'StudentPreferences';
 const TeacherPreferences = 'TeacherPreferences';
 const FinalAllocation = 'FinalAllocation';
-let isAlgoRun = false;
+let isAlgoRun = true;
 
 var template = function(msg){
 	var retval = fs.readFileSync('loginPortal/template.html');
@@ -93,25 +93,47 @@ app.post('/portal', urlencodedParser, function(req,res){
 		{
 			if(result[0].type == 'student')
 			{
-				if(!result[0].submitted)
+				if(!isAlgoRun)
 				{
-					fs.readFile('studentPortal/student_portal.html', function(err,data){
-						if(err){
-							console.log(err);
-							res.writeHead(404,{'Content-Type':'text/html'});
-						}
-						else{
-							res.writeHead(200,{'Content-Type':'text/html'});
-							res.write(data.toString());
-						}
+					if(!result[0].submitted)
+					{
+						fs.readFile('studentPortal/student_portal.html', function(err,data){
+							if(err){
+								console.log(err);
+								res.writeHead(404,{'Content-Type':'text/html'});
+							}
+							else{
+								res.writeHead(200,{'Content-Type':'text/html'});
+								res.write(data.toString());
+							}
+							res.end();
+						});
+					}
+					else
+					{
+						res.writeHead(200,{'Content-Type':'text/html'});
+						res.write(template("Form Already Submitted"));
 						res.end();
-					});
+					}
 				}
 				else
 				{
-					res.writeHead(200,{'Content-Type':'text/html'});
-					res.write(template("Form Already Submitted"));
-					res.end();
+					con.query("SELECT cid FROM " + FinalAllocation + " WHERE talist LIKE '%" + req.body.uname + "%'", function(err,result,fields){
+						if(err)
+							console.log(err);
+						else if(result.length == 0)
+						{
+							res.writeHead(200,{'Content-Type':'text/html'});
+							res.write(template("You are not a TA this semester"));
+							res.end();
+						}
+						else
+						{
+							res.writeHead(200,{'Content-Type':'text/html'});
+							res.write(template("You are a TA for " + result[0].cid));
+							res.end();
+						}
+					});
 				}
 			}
 			else if(result[0].type == 'teacher')
@@ -136,23 +158,26 @@ app.post('/portal', urlencodedParser, function(req,res){
 						if(err){
 							console.log(err);
 							res.writeHead(404,{'Content-Type':'text/html'});
+							res.end();
 						}
 						else{
-							let tas = "";
-							let sql = "SELECT talist FROM " + FinalAllocation + "WHERE instname = " + req.body.uname;
-							con.query(sql, function(err,result,fields){
+							con.query("SELECT talist FROM " + FinalAllocation + " WHERE instname = '" + req.body.uname +"'", function(err,result,fields){
+								//console.log(err);
+								var tas = '';
 						    	if (!err){
-						    		for(talist in result){
-						    			let tas1 = talist.split(" ");
-						    			for(ta in tas1)
-						    				tas+='<option value=\"' + ta + '\">' + ta + '</option>';
+						    		for(var i = 0; i < result.length; i++){
+						    			var tas1 = result[i].talist.split(" ");
+						    			for(var j = 0; j < tas1.length; j++)
+						    				tas+='<option value=\"' + tas1[j] + '\">' + tas1[j] + '</option>';
+						    			//console.log(i);
 						    		}
 						    	}
 						    	res.writeHead(200,{'Content-Type':'text/html'});
-								res.write(data.toString().replace("###",tas));
+								res.write(data.toString().replace("####",tas));
+								res.end();
 						    });
 						}
-						res.end();
+						
 					});
 				}
 			}
