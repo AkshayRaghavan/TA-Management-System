@@ -9,7 +9,8 @@ const UserDetails = 'UserDetails';
 const StudentPreferences = 'StudentPreferences';
 const TeacherPreferences = 'TeacherPreferences';
 const FinalAllocation = 'FinalAllocation';
-let isAlgoRun = false;
+const TasksData = 'TasksData';
+let isAlgoRun = true;
 
 var template = function(msg){
 	var retval = fs.readFileSync('loginPortal/template.html');
@@ -52,7 +53,7 @@ con.query(sql, function(err,result){
 	console.log("FinalAllocation Table created/success");
 });
 
-sql = "create table IF NOT EXISTS Tasks(tna varchar(100), task varchar(100), PRIMARY KEY(task) )";
+sql = "create table IF NOT EXISTS TasksData(tna varchar(100), task varchar(100), completed BOOLEAN, PRIMARY KEY(task) )";
 con.query(sql, function(err,result){
 	if(err) throw err;
 	console.log("Tasks Table created/success");
@@ -149,9 +150,24 @@ app.post('/portal', urlencodedParser, function(req,res){
 						}
 						else
 						{
-							res.writeHead(200,{'Content-Type':'text/html'});
-							res.write(template("You are a TA for " + result[0].cid));
-							res.end();
+							fs.readFile("studentPortal/show_task.html", function(err,data){
+								res.writeHead(200,{'Content-Type':'text/html'});
+								data = data.toString().replace('$$$$', result[0].cid);
+								con.query('SELECT task FROM ' + TasksData + " WHERE tna = '" + req.body.uname + "' AND completed = 0", function(err,result,fields){
+									var task = '';
+							    	if (!err){
+							    		for(var i = 0; i < result.length; i++){
+							    			task += '<option value=\"' + result[i].task + '\">' + result[i].task + '</option>';
+							    			//console.log(i);
+							    		}
+							    	}
+							    	data = data.replace('####', task);
+							    	res.write(data);
+									res.end();
+								});
+								//res.write(template("You are a TA for " + result[0].cid));
+							});
+							
 						}
 					});
 				}
@@ -447,7 +463,7 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 });
 
 app.get('/getTask', function(req, res){
-    let sql = "SELECT * FROM Tasks";
+    let sql = "SELECT * FROM TasksData";
     con.query(sql, function(err, result, fields){
         if(err) throw err;
         else{
@@ -459,7 +475,7 @@ app.get('/getTask', function(req, res){
 });
 
 app.post('/taskSubmit', urlencodedParser, function(req,res){
-	let sql = "INSERT INTO " + Tasks + " (tna, task) VALUES ('" + req.body.tna+ "', '" + req.body.task +"')";
+	let sql = "INSERT INTO " + TasksData + " (tna, task, completed) VALUES ('" + req.body.tna+ "', '" + req.body.task +"',0)";
 	con.query(sql, function (err, result) {
     	if (err) throw err;
   		console.log("Record inserted");
@@ -468,5 +484,19 @@ app.post('/taskSubmit', urlencodedParser, function(req,res){
 	res.write(template('Submitted Successfully'));
 	res.end();
 });
+
+app.post('/taskUpdate', urlencodedParser, function(req,res){
+	if(req.body.task != 'none'){
+		let sql = "UPDATE " + TasksData + " SET completed = 1 WHERE task = '" + req.body.task + "'";
+		con.query(sql, function(err,result){
+			if (err) throw err;
+	  		console.log("Task Record updated");
+	  		res.writeHead(200,{'Content-Type':'text/html'});
+			res.write(template('Task Updated Successfully'));
+			res.end();
+		});
+	}
+});
+
 
 var server = app.listen(8080);
