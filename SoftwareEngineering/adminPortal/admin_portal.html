@@ -25,7 +25,7 @@
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
 			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
-				<form action="http://localhost:8080/adminSubmit" method="post">
+				<form action="http://localhost:8080/adminSubmit" method="post" target="_blank">
 					<div class="form-group">
 						<label for="table">Select a Table:</label>
 						<select id="table" name="table" class="form-control" onChange=toggleDetails() required>
@@ -45,33 +45,18 @@
 						<textarea id="details" class="form-control" rows="3" name="details" placeholder="Enter Student Roll No" required></textarea>
 					</div>
 					<button type="submit" class="btn btn-warning">Submit</button>
-					<script>
-						function toggleDetails(val){
-							if(document.getElementById("action").value == "del"){
-								if(document.getElementById("table").value == "student")
-									document.getElementById("details").placeholder = "Enter Student Roll No";
-								else
-									document.getElementById("details").placeholder = "Enter Course Id";
-							}
-							else{
-								if(document.getElementById("table").value == "student")
-									document.getElementById("details").placeholder = "Enter <roll no,cgpa,pref> separated by commas";
-								else
-									document.getElementById("details").placeholder = "Enter <course id,instname,nta,pref> separated by commas";
-							}
-						}
-					</script>
+					<button type="reset" class="btn btn-warning" onclick="onReset()" style="float:right;">Reset</button>
 				</form>
 			</div>
 
 			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
-				<form action="http://localhost:8080/displayTable" method="post">
+				<form action="http://localhost:8080/displayTable" method="post" target="_blank">
 					<div class="display-table">
 						<label for="dtable">Select Table to Display:</label>
 						<select name="dtable" class="display-table" required>
 							<option value="student" selected>Student</option>
 							<option value="teacher">Teacher</option>
-							<option value="final">Final</option>
+							<option value="final">Final Allocation</option>
 						</select>
 					</div>
 					<button type="submit" class="btn btn-warning">Display Table</button>
@@ -79,10 +64,28 @@
 			</div>
 
 			<div class="container-fluid rounded text-light text-center">
-				<a href="http://localhost:8080/runAlgo" class="btn btn-warning" onclick="return confirm('Do you want to schedule the TA Allocation Algorithm?')">Run TA Allocation Algorithm</a>
+				<a href="http://localhost:8080/runAlgo" class="btn btn-warning" onclick="return confirm('Do you want to schedule the TA Allocation Algorithm?')" target="_blank">Run TA Allocation Algorithm</a>
 			</div>
 		</div>
 	</div>
-
+<script>
+function toggleDetails(){
+	if(document.getElementById("action").value == "del"){
+		if(document.getElementById("table").value == "student")
+			document.getElementById("details").placeholder = "Enter Student Roll No";
+		else
+			document.getElementById("details").placeholder = "Enter Course Id";
+	}
+	else{
+		if(document.getElementById("table").value == "student")
+			document.getElementById("details").placeholder = "Enter <roll no,cgpa,pref> separated by commas";
+		else
+			document.getElementById("details").placeholder = "Enter <course id,instname,nta,pref> separated by commas";
+	}
+}
+function onReset(){
+	document.getElementById("details").placeholder = "Enter Student Roll No";
+}
+</script>
 </body>
 </html>
