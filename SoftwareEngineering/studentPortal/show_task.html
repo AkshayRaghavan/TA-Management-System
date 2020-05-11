@@ -17,7 +17,6 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
-
 	<div class="bgimg col-sm-12 h-100 d-flex flex-column">
 		<div class="container-fluid text-light text-center" style="background: rgb(1,1,1,0)">
 			<span style="font-size: 200%; font-weight:50;"> Tasks for your course $$$$ <!--<span id ="update_username">User-name! </span>-->  </span>
@@ -26,19 +25,25 @@
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
 			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
-				<form action="http://localhost:8080/taskUpdate" method="post">
+				<form action="http://localhost:8080/taskUpdate" method="post" target="_blank">
 					<div class="form-group">
-						<label for="task">Choose Task:</label>
-						<select type="text" class="form-control" name="task">
-							<option value="none" selected>none</option>
+						<label for="seltask">Choose Task:</label>
+						<select id="seltask" type="text" class="form-control">
 							####
 						</select>
 					</div>
-					<button type="submit" class="btn btn-warning" formtarget="_blank">Mark Completed</button>
+					<input id="task" name="task" type="hidden" value="">
+					<button type="submit" class="btn btn-warning" onclick="clearTask()">Mark As Done</button>
 				</form>
 			</div>
 		</div>
 	</div>
-
+<script>
+function clearTask(){
+	let st = document.getElementById("seltask");
+	document.getElementById("task").value = st.value;
+	st.remove(st.selectedIndex);
+}
+</script>
 </body>
 </html>

@@ -53,7 +53,7 @@ con.query(sql, function(err,result){
 	console.log("FinalAllocation Table created/success");
 });
 
-sql = "create table IF NOT EXISTS TasksData(tna varchar(100), task varchar(100), completed BOOLEAN, PRIMARY KEY(task) )";
+sql = "create table IF NOT EXISTS TasksData(tna varchar(100), task varchar(100), completed BOOLEAN, PRIMARY KEY(tna,task) )";
 con.query(sql, function(err,result){
 	if(err) throw err;
 	console.log("Tasks Table created/success");
@@ -163,15 +163,13 @@ app.post('/portal', urlencodedParser, function(req,res){
 									var task = '';
 							    	if (!err){
 							    		for(var i = 0; i < result.length; i++){
-							    			task += '<option value=\"' + result[i].task + '\">' + result[i].task + '</option>';
-							    			//console.log(i);
+							    			task += '<option value=\"' + result[i].task + '\" id=\"' + result[i].task + '\">' + result[i].task + '</option>';
 							    		}
 							    	}
 							    	data = data.replace('####', task);
 							    	res.write(data);
 									res.end();
 								});
-								//res.write(template("You are a TA for " + result[0].cid));
 							});
 							
 						}
@@ -193,7 +191,6 @@ app.post('/portal', urlencodedParser, function(req,res){
 							res.write(data.toString());
 							res.end();
 						}
-						
 					});
 				}
 				else
@@ -216,8 +213,8 @@ app.post('/portal', urlencodedParser, function(req,res){
 						    		}
 						    	}
 						    	res.writeHead(200,{'Content-Type':'text/html'});
-								  res.write(data.toString().replace("####",tas));
-								  res.end();
+								res.write(data.toString().replace("####",tas));
+								res.end();
 						    });
 						}
 					});
@@ -449,7 +446,7 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 		header = "<tr><th>Course Id</th><th>Instructor</th><th>No of TAs</th><th>Preferences</th></tr>";
 		sql = "SELECT * FROM " + TeacherPreferences;
 	}
-	else{
+	else if(req.body.dtable == "final"){
 		transform = {'<>':'tr','html':[
 			{'<>':'td','html':'${cid}'},
 			{'<>':'td','html':'${instname}'},
@@ -458,6 +455,15 @@ app.post('/displayTable', urlencodedParser, function(req,res){
 		header = "<tr><th>Course Id</th><th>Instructor</th><th>Allocated TA List</th></tr>";
 		sql = "SELECT * FROM " + FinalAllocation;
 	}
+	else{
+		transform = {'<>':'tr','html':[
+			{'<>':'td','html':'${tna}'},
+			{'<>':'td','html':'${task}'},
+			{'<>':'td','html':'${completed}'}
+		]};
+		header = "<tr><th>Course Id</th><th>Instructor</th><th>Allocated TA List</th></tr>";
+		sql = "SELECT * FROM " + TasksData;
+	}
 	con.query(sql, function(err,result,fields){
     	if (err) throw err;
   		console.log("Table Data fetched");
@@ -465,18 +471,6 @@ app.post('/displayTable', urlencodedParser, function(req,res){
   		res.write("<style>tr:nth-child(even){background-color: #f2f2f2;}</style><table width=\"100%\">" + header + json2html.transform(result,transform) + "</table>");
   		res.end();
 	});
-});
-
-app.get('/getTask', function(req, res){
-    let sql = "SELECT * FROM TasksData";
-    con.query(sql, function(err, result, fields){
-        if(err) throw err;
-        else{
-            console.log("Tasks data fetched");
-            res.writeHead(404,{'Content-Type':'text/html'});
-            res.end();
-        }
-    });
 });
 
 app.post('/taskSubmit', urlencodedParser, function(req,res){
@@ -491,7 +485,7 @@ app.post('/taskSubmit', urlencodedParser, function(req,res){
 });
 
 app.post('/taskUpdate', urlencodedParser, function(req,res){
-	if(req.body.task != 'none'){
+	if(req.body.task){
 		let sql = "UPDATE " + TasksData + " SET completed = 1 WHERE task = '" + req.body.task + "'";
 		con.query(sql, function(err,result){
 			if (err) throw err;
@@ -502,6 +496,5 @@ app.post('/taskUpdate', urlencodedParser, function(req,res){
 		});
 	}
 });
-
 
 var server = app.listen(8080);

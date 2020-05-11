@@ -25,11 +25,10 @@
 
 		<div class="row justify-content-center flex-grow-1 align-items-center">
 			<div class="container rounded text-light" style="background: rgb(1,1,1,0.6)">
-				<form action="http://localhost:8080/taskSubmit" method="post">
+				<form action="http://localhost:8080/taskSubmit" method="post" target="_blank">
 					<div class="form-group">
 						<label for="tna">Choose TA:</label>
-						<select class="form-control" name="tna">
-							<option value="all" selected>All</option>
+						<select class="form-control" name="tna" required>
 							####
 						</select>
 					</div>
@@ -38,6 +37,7 @@
 						<input type="text" class="form-control" placeholder="Enter Task" name="task">
 					</div>
 					<button type="submit" class="btn btn-warning">Submit</button>
+					<button type="reset" class="btn btn-warning" style="float:right;">Reset</button>
 				</form>
 			</div>
 		</div>
