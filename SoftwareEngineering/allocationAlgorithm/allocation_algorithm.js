@@ -12,7 +12,7 @@ var con=mysql.createConnection(
     {
         host:"localhost",
         user:"root",
-        password:"anand1998",
+        password:"akshMysql12",
         database:"se"
     }
 );
@@ -133,9 +133,8 @@ con.query("DELETE FROM FinalAllocation;",function(err0,result0){ // deleting the
             {
               if(round_of_course[course]===applications[course].length)
               {
-                throw new Error("Cannot find required number of TAs for the course "+course);
-                // break;
-                //return;
+                console.log("Cannot find required number of TAs for the course " + course);
+                throw new Error();
               }
               var student_offered=applications[course][round_of_course[course]];
               if(state_of_student[student_offered]===0)

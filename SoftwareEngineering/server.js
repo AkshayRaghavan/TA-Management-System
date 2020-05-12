@@ -88,6 +88,12 @@ app.get('/',function(req,res){
 });
 
 app.post('/portal', urlencodedParser, function(req,res){
+con.query("SELECT 1 FROM FinalAllocation", function(err,result){
+	if(!err && result.length != 0)
+		isAlgoRun = true;
+	else
+		isAlgoRun = false;
+
 	con.query("SELECT * FROM " + UserDetails + " WHERE uname = '" + req.body.uname + "'",function(err,result,fields){
 		if(err)
 			console.log(err);
@@ -245,7 +251,7 @@ app.post('/portal', urlencodedParser, function(req,res){
 			res.end();
 		}
 	});
-
+});
 });
 
 app.post('/studentSubmit', urlencodedParser, function(req,res){
@@ -413,22 +419,10 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
 
 app.get('/runAlgo', urlencodedParser, function(req,res){
 	let execFile = require('child_process').execFile;
-	execFile('node', ['allocationAlgorithm/allocation_algorithm.js'], (err, stdout, stderr) => {
-		res.writeHead(200,{'Content-Type':'text/html'});
-	    if(err){
-			var start_index_of_main_message=293;
-			var length_of_main_message=56;
-			var main_message=err.message.substring(start_index_of_main_message, start_index_of_main_message+length_of_main_message);
-			console.log(main_message);
-			isAlgoRun = false;
-			res.write(template(main_message));
-		}
-		else
-		{
-			isAlgoRun = true;
-			res.write(template('TA allocation complete!'));
-		}
-		res.end();
+	execFile('node', ['allocationAlgorithm/allocation_algorithm.js']);
+	res.writeHead(200,{'Content-Type':'text/html'});
+	res.write(template('TA Allocation Algorithm scheduled to run'));
+	res.end();
 });
 
 app.post('/displayTable', urlencodedParser, function(req,res){
