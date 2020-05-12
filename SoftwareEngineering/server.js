@@ -10,7 +10,7 @@ const StudentPreferences = 'StudentPreferences';
 const TeacherPreferences = 'TeacherPreferences';
 const FinalAllocation = 'FinalAllocation';
 const TasksData = 'TasksData';
-let isAlgoRun = true;
+let isAlgoRun = false;
 
 var template = function(msg){
 	var retval = fs.readFileSync('loginPortal/template.html');
