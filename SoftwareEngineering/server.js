@@ -414,15 +414,21 @@ app.post('/adminSubmit', urlencodedParser, function(req,res){
 app.get('/runAlgo', urlencodedParser, function(req,res){
 	let execFile = require('child_process').execFile;
 	execFile('node', ['allocationAlgorithm/allocation_algorithm.js'], (err, stdout, stderr) => {
+		res.writeHead(200,{'Content-Type':'text/html'});
 	    if(err){
-	        console.error('stderr', stderr);
-	        throw err;
-	    }
-	});
-	isAlgoRun = true;
-	res.writeHead(200,{'Content-Type':'text/html'});
-	res.write(template('Allocation Algorithm has been scheduled to run'));
-	res.end();
+			var start_index_of_main_message=293;
+			var length_of_main_message=56;
+			var main_message=err.message.substring(start_index_of_main_message, start_index_of_main_message+length_of_main_message);
+			console.log(main_message);
+			isAlgoRun = false;
+			res.write(template(main_message));
+		}
+		else
+		{
+			isAlgoRun = true;
+			res.write(template('TA allocation complete!'));
+		}
+		res.end();
 });
 
 app.post('/displayTable', urlencodedParser, function(req,res){
