@@ -10,4 +10,4 @@ INSERT INTO CourseData(cid) VALUES ('CS4444');
 INSERT INTO CourseData(cid) VALUES ('EE3030');
 INSERT INTO CourseData(cid) VALUES ('EE2020');
 
-select * from coursedata;
+select * from CourseData;

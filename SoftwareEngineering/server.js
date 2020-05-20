@@ -120,7 +120,7 @@ con.query("SELECT 1 FROM FinalAllocation", function(err,result){
 							}
 							else{
 								res.writeHead(200,{'Content-Type':'text/html'});
-								con.query('SELECT * FROM coursedata',function(err,result1,fields)
+								con.query('SELECT * FROM CourseData',function(err,result1,fields)
 								{
 									if(err)
 										console.log(err);
@@ -130,7 +130,6 @@ con.query("SELECT 1 FROM FinalAllocation", function(err,result){
 										for(var i = 0; i < result1.length; i++)
 										{
 											courses.push(result1[i].cid);
-											//console.log();
 										}
 										data = data.toString().replace('####',JSON.stringify(courses));
 										data = data.replace('####',JSON.stringify(courses));
